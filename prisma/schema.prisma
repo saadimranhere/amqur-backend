@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id   String @id @default(cuid())
+  slug String @unique
+  name String
+
+  locations Location[]
+  users     User[]
+  vehicles  Vehicle[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Location {
+  id String @id @default(cuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  name    String
+  slug    String  @unique
+  address String?
+  phone   String?
+
+  // ✅ INVENTORY FEED CONFIG
+  inventoryFeedUrl  String?
+  inventoryFeedType InventoryFeedType?
+
+  users    User[]
+  vehicles Vehicle[] @relation("LocationVehicles")
+
+  createdAt DateTime @default(now())
+}
+
+enum InventoryFeedType {
+  XML
+  JSON
+  CSV
+}
+
+model User {
+  id String @id @default(cuid())
+
+  email    String @unique
+  password String
+
+  firstName String
+  lastName  String
+
+  role Role @default(STAFF)
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+model Vehicle {
+  id String @id @default(cuid())
+
+  tenantId   String
+  locationId String?
+
+  vin   String  @unique
+  stock String?
+
+  year  Int
+  make  String
+  model String
+  trim  String?
+
+  bodyType     String?
+  drivetrain   String?
+  transmission String?
+  fuelType     String?
+  color        String?
+
+  price   Int?
+  msrp    Int?
+  mileage Int?
+
+  photos Json?
+
+  status VehicleStatus @default(AVAILABLE)
+
+  lastSeenAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  location Location? @relation("LocationVehicles", fields: [locationId], references: [id])
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  IN_TRANSIT
+  HOLD
+  MISSING
+  SOLD
+}
+
