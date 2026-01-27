@@ -8,12 +8,12 @@ export declare class AuthController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
-        locationId: string | null;
-        role: import("@prisma/client").$Enums.Role;
         email: string;
         firstName: string;
         lastName: string;
+        tenantId: string;
+        locationId: string | null;
+        role: import("@prisma/client").$Enums.Role;
     }>;
     login(dto: LoginDto): Promise<{
         accessToken: string;
@@ -21,12 +21,12 @@ export declare class AuthController {
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            tenantId: string;
-            locationId: string | null;
-            role: import("@prisma/client").$Enums.Role;
             email: string;
             firstName: string;
             lastName: string;
+            tenantId: string;
+            locationId: string | null;
+            role: import("@prisma/client").$Enums.Role;
         };
     }>;
 }

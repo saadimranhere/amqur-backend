@@ -4,9 +4,9 @@ export declare class LocationsController {
     private readonly locationsService;
     constructor(locationsService: LocationsService);
     findAll(): import("@prisma/client").Prisma.PrismaPromise<{
-        id: string;
         slug: string;
         name: string;
+        id: string;
         createdAt: Date;
         tenantId: string;
         address: string | null;
@@ -15,9 +15,9 @@ export declare class LocationsController {
         inventoryFeedType: import("@prisma/client").$Enums.InventoryFeedType | null;
     }[]>;
     create(dto: CreateLocationDto): import("@prisma/client").Prisma.Prisma__LocationClient<{
-        id: string;
         slug: string;
         name: string;
+        id: string;
         createdAt: Date;
         tenantId: string;
         address: string | null;

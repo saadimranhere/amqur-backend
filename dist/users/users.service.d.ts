@@ -6,28 +6,28 @@ export declare class UsersService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
-        locationId: string | null;
-        role: import("@prisma/client").$Enums.Role;
         email: string;
         firstName: string;
         lastName: string;
+        tenantId: string;
+        locationId: string | null;
+        role: import("@prisma/client").$Enums.Role;
     }[]>;
     findByEmail(email: string): Promise<{
         id: string;
+        email: string;
+        password: string;
         tenantId: string;
         locationId: string | null;
         role: import("@prisma/client").$Enums.Role;
-        email: string;
-        password: string;
     } | null>;
     findById(id: string): Promise<{
         id: string;
-        tenantId: string;
-        locationId: string | null;
-        role: import("@prisma/client").$Enums.Role;
         email: string;
         firstName: string;
         lastName: string;
+        tenantId: string;
+        locationId: string | null;
+        role: import("@prisma/client").$Enums.Role;
     } | null>;
 }

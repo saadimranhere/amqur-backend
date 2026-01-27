@@ -12,7 +12,6 @@ const config_1 = require("@nestjs/config");
 const throttler_1 = require("@nestjs/throttler");
 const core_1 = require("@nestjs/core");
 const schedule_1 = require("@nestjs/schedule");
-const public_module_1 = require("./public/public.module");
 const prisma_module_1 = require("./prisma/prisma.module");
 const tenants_module_1 = require("./tenants/tenants.module");
 const locations_module_1 = require("./locations/locations.module");
@@ -22,6 +21,8 @@ const chat_module_1 = require("./chat/chat.module");
 const inventory_module_1 = require("./inventory/inventory.module");
 const inventory_feed_module_1 = require("./inventory-feed/inventory-feed.module");
 const inventory_sync_module_1 = require("./inventory-sync/inventory-sync.module");
+const public_module_1 = require("./public/public.module");
+const jwt_auth_guard_1 = require("./auth/guards/jwt-auth.guard");
 const logger_middleware_1 = require("./common/middleware/logger.middleware");
 let AppModule = class AppModule {
     configure(consumer) {
@@ -55,6 +56,10 @@ exports.AppModule = AppModule = __decorate([
             public_module_1.PublicModule,
         ],
         providers: [
+            {
+                provide: core_1.APP_GUARD,
+                useClass: jwt_auth_guard_1.JwtAuthGuard,
+            },
             {
                 provide: core_1.APP_GUARD,
                 useClass: throttler_1.ThrottlerGuard,

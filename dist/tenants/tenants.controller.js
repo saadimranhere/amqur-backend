@@ -16,40 +16,35 @@ exports.TenantsController = void 0;
 const common_1 = require("@nestjs/common");
 const tenants_service_1 = require("./tenants.service");
 const create_tenant_dto_1 = require("./dto/create-tenant.dto");
-const jwt_guard_1 = require("../auth/jwt/jwt.guard");
-const roles_decorator_1 = require("../auth/decorators/roles.decorator");
-const roles_guard_1 = require("../auth/guards/roles.guard");
+const public_decorator_1 = require("../auth/decorators/public.decorator");
 let TenantsController = class TenantsController {
     tenantsService;
     constructor(tenantsService) {
         this.tenantsService = tenantsService;
     }
-    findAll() {
-        return this.tenantsService.findAll();
-    }
     create(dto) {
         return this.tenantsService.create(dto);
+    }
+    findAll() {
+        return this.tenantsService.findAll();
     }
 };
 exports.TenantsController = TenantsController;
 __decorate([
-    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('SUPER_ADMIN', 'ADMIN'),
-    (0, common_1.Get)(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], TenantsController.prototype, "findAll", null);
-__decorate([
-    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('SUPER_ADMIN'),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_tenant_dto_1.CreateTenantDto]),
     __metadata("design:returntype", void 0)
 ], TenantsController.prototype, "create", null);
+__decorate([
+    (0, common_1.Get)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], TenantsController.prototype, "findAll", null);
 exports.TenantsController = TenantsController = __decorate([
+    (0, public_decorator_1.Public)(),
     (0, common_1.Controller)('tenants'),
     __metadata("design:paramtypes", [tenants_service_1.TenantsService])
 ], TenantsController);

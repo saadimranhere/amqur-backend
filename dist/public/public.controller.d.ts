@@ -12,14 +12,14 @@ export declare class PublicController {
     } | {
         ok: boolean;
         tenant: {
-            id: string;
             slug: string;
             name: string;
+            id: string;
         };
         location: {
-            id: string;
             slug: string;
             name: string;
+            id: string;
         };
         error?: undefined;
     }>;

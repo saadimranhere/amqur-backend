@@ -4,9 +4,9 @@ export declare class LocationsService {
     private prisma;
     constructor(prisma: PrismaService);
     findAll(): import("@prisma/client").Prisma.PrismaPromise<{
-        id: string;
         slug: string;
         name: string;
+        id: string;
         createdAt: Date;
         tenantId: string;
         address: string | null;
@@ -15,9 +15,9 @@ export declare class LocationsService {
         inventoryFeedType: import("@prisma/client").$Enums.InventoryFeedType | null;
     }[]>;
     create(data: CreateLocationDto): import("@prisma/client").Prisma.Prisma__LocationClient<{
-        id: string;
         slug: string;
         name: string;
+        id: string;
         createdAt: Date;
         tenantId: string;
         address: string | null;

@@ -11,9 +11,9 @@ export declare class InventoryService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        trim: string | null;
         tenantId: string;
         locationId: string | null;
+        trim: string | null;
         year: number;
         price: number | null;
         make: string;

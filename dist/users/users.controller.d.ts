@@ -6,12 +6,12 @@ export declare class UsersController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
-        locationId: string | null;
-        role: import("@prisma/client").$Enums.Role;
         email: string;
         firstName: string;
         lastName: string;
+        tenantId: string;
+        locationId: string | null;
+        role: import("@prisma/client").$Enums.Role;
     }[]>;
     create(): {
         message: string;
