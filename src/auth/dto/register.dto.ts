@@ -4,8 +4,7 @@ export class RegisterDto {
     @IsEmail()
     email: string;
 
-    @IsString()
-    @MinLength(8)
+    @MinLength(6)
     password: string;
 
     @IsString()
@@ -20,7 +19,6 @@ export class RegisterDto {
     @IsNotEmpty()
     tenantId: string;
 
-    @IsString()
-    @IsNotEmpty()
-    locationId: string;
+    // optional for later
+    locationId?: string;
 }

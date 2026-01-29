@@ -13,27 +13,42 @@ export class AuthService {
         private jwt: JwtService,
     ) { }
 
+    // ✅ STEP 2 — CREATE FIRST SUPER ADMIN
     async register(dto: RegisterDto) {
+        const existing = await this.prisma.user.findUnique({
+            where: { email: dto.email.toLowerCase() },
+        });
+
+        if (existing) {
+            throw new UnauthorizedException('User already exists');
+        }
+
         const user = await this.prisma.user.create({
             data: {
-                email: dto.email,
+                email: dto.email.toLowerCase(),
                 password: await bcrypt.hash(dto.password, 10),
+
                 firstName: dto.firstName,
                 lastName: dto.lastName,
+
                 tenantId: dto.tenantId,
-                locationId: null,
-                role: Role.ADMIN,
+
+                // 🔐 FIRST USER IS ALWAYS SUPER_ADMIN
+                role: Role.SUPER_ADMIN,
+
+                ...(dto.locationId && {
+                    locationId: dto.locationId,
+                }),
             },
         });
 
         const { password, ...safeUser } = user;
-
         return safeUser;
     }
 
     async login(dto: LoginDto) {
         const user = await this.prisma.user.findUnique({
-            where: { email: dto.email },
+            where: { email: dto.email.toLowerCase() },
         });
 
         if (!user) {

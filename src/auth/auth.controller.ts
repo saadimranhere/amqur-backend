@@ -8,14 +8,14 @@ import { Public } from './decorators/public.decorator';
 export class AuthController {
     constructor(private auth: AuthService) { }
 
+    @Public()
     @Post('register')
-    @Public() // ✅ THIS MUST EXIST
     register(@Body() dto: RegisterDto) {
         return this.auth.register(dto);
     }
 
+    @Public()
     @Post('login')
-    @Public() // ✅ ADD THIS TOO
     login(@Body() dto: LoginDto) {
         return this.auth.login(dto);
     }

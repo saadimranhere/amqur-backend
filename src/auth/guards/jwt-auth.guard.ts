@@ -5,25 +5,25 @@ import {
     UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Reflector } from '@nestjs/core';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-    constructor(private readonly jwtService: JwtService) { }
+    constructor(
+        private jwtService: JwtService,
+        private reflector: Reflector,
+    ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
+        const isPublic = this.reflector.getAllAndOverride<boolean>(
+            IS_PUBLIC_KEY,
+            [context.getHandler(), context.getClass()],
+        );
+
+        if (isPublic) return true;
+
         const request = context.switchToHttp().getRequest();
-        const path = request.route?.path || '';
-        const method = request.method;
-
-        // ✅ HARD BYPASS AUTH ROUTES
-        if (
-            path === '/auth/register' ||
-            path === '/auth/login' ||
-            path.startsWith('/public')
-        ) {
-            return true;
-        }
-
         const authHeader = request.headers.authorization;
 
         if (!authHeader) {
@@ -33,7 +33,7 @@ export class JwtAuthGuard implements CanActivate {
         const [type, token] = authHeader.split(' ');
 
         if (type !== 'Bearer' || !token) {
-            throw new UnauthorizedException('Invalid token format');
+            throw new UnauthorizedException('Invalid token');
         }
 
         try {
