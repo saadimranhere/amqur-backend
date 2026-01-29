@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "echo \"Skipping build — using precompiled dist\"",
+    "build": "nest build",
     "build:local": "nest build",
     "start": "node dist/main.js",
     "start:dev": "nest start --watch",
