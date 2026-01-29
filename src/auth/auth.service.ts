@@ -21,7 +21,7 @@ export class AuthService {
                 firstName: dto.firstName,
                 lastName: dto.lastName,
                 tenantId: dto.tenantId,
-                locationId: dto.locationId,
+                locationId: null,
                 role: Role.ADMIN,
             },
         });
