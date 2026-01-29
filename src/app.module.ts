@@ -5,10 +5,7 @@ import {
 } from '@nestjs/common';
 
 import { ConfigModule } from '@nestjs/config';
-import {
-  ThrottlerModule,
-  ThrottlerGuard,
-} from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -24,7 +21,9 @@ import { InventorySyncModule } from './inventory-sync/inventory-sync.module';
 import { PublicModule } from './public/public.module';
 
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { PublicAwareThrottlerGuard } from './auth/guards/public-throttler.guard';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
+
 
 @Module({
   imports: [
@@ -64,8 +63,9 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
     // 🚦 Global rate limiting
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: PublicAwareThrottlerGuard,
     },
+
   ],
 })
 export class AppModule implements NestModule {
