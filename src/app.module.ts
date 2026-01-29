@@ -11,7 +11,6 @@ import {
 } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
-import { PublicModule } from './public/public.module';
 
 import { PrismaModule } from './prisma/prisma.module';
 import { TenantsModule } from './tenants/tenants.module';
@@ -22,7 +21,9 @@ import { ChatModule } from './chat/chat.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { InventoryFeedModule } from './inventory-feed/inventory-feed.module';
 import { InventorySyncModule } from './inventory-sync/inventory-sync.module';
+import { PublicModule } from './public/public.module';
 
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 @Module({
@@ -54,6 +55,13 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
   ],
 
   providers: [
+    // 🔐 Global JWT guard (respects @Public)
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+
+    // 🚦 Global rate limiting
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
