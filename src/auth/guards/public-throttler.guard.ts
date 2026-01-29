@@ -1,30 +1,23 @@
 import { Injectable, ExecutionContext } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import type {
-    ThrottlerModuleOptions,
-    ThrottlerStorageService,
-} from '@nestjs/throttler';
-import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
 export class PublicAwareThrottlerGuard extends ThrottlerGuard {
-    constructor(
-        options: ThrottlerModuleOptions,
-        storageService: ThrottlerStorageService,
-        reflector: Reflector,
-    ) {
-        super(options, storageService, reflector);
-    }
+    protected async shouldSkip(context: ExecutionContext): Promise<boolean> {
+        const request = context.switchToHttp().getRequest();
 
-    protected async shouldSkip(
-        context: ExecutionContext,
-    ): Promise<boolean> {
-        const isPublic = this.reflector.getAllAndOverride<boolean>(
-            IS_PUBLIC_KEY,
-            [context.getHandler(), context.getClass()],
-        );
+        const path = request?.route?.path;
 
-        return !!isPublic;
+        // 🔓 hard public routes
+        if (
+            path === '/auth/register' ||
+            path === '/auth/login' ||
+            path === '/public/widget-token' ||
+            path === '/public/widget-config'
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }
