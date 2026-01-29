@@ -14,7 +14,6 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InventoryFeedController = void 0;
 const common_1 = require("@nestjs/common");
-const jwt_guard_1 = require("../auth/jwt/jwt.guard");
 const inventory_feed_service_1 = require("./inventory-feed.service");
 const vehicle_normalizer_1 = require("./normalizer/vehicle.normalizer");
 const parse_inventory_feed_dto_1 = require("./dto/parse-inventory-feed.dto");
@@ -60,7 +59,6 @@ let InventoryFeedController = class InventoryFeedController {
 exports.InventoryFeedController = InventoryFeedController;
 __decorate([
     (0, common_1.Post)('parse'),
-    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [parse_inventory_feed_dto_1.ParseInventoryFeedDto]),

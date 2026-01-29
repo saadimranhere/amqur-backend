@@ -16,9 +16,7 @@ exports.LocationsController = void 0;
 const common_1 = require("@nestjs/common");
 const locations_service_1 = require("./locations.service");
 const create_location_dto_1 = require("./dto/create-location.dto");
-const jwt_guard_1 = require("../auth/jwt/jwt.guard");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
-const roles_guard_1 = require("../auth/guards/roles.guard");
 let LocationsController = class LocationsController {
     locationsService;
     constructor(locationsService) {
@@ -33,7 +31,6 @@ let LocationsController = class LocationsController {
 };
 exports.LocationsController = LocationsController;
 __decorate([
-    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('SUPER_ADMIN', 'ADMIN', 'MANAGER'),
     (0, common_1.Get)(),
     __metadata("design:type", Function),
@@ -41,7 +38,6 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], LocationsController.prototype, "findAll", null);
 __decorate([
-    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('SUPER_ADMIN', 'ADMIN'),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),

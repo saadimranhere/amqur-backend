@@ -1,5 +1,4 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
 import { ChatService } from './chat.service';
 import { ChatDto } from './dto/chat.dto';
 
@@ -8,7 +7,6 @@ export class ChatController {
     constructor(private readonly chatService: ChatService) { }
 
     @Post()
-    @UseGuards(JwtAuthGuard)
     async chat(@Req() req: any, @Body() body: ChatDto) {
         const role = req.user?.role;
 

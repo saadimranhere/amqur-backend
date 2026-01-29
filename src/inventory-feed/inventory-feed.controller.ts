@@ -6,7 +6,6 @@ import {
     Post,
     UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
 import { InventoryFeedService } from './inventory-feed.service';
 import { VehicleNormalizer } from './normalizer/vehicle.normalizer';
 import { ParseInventoryFeedDto } from './dto/parse-inventory-feed.dto';
@@ -30,7 +29,6 @@ export class InventoryFeedController {
     constructor(private readonly feed: InventoryFeedService) { }
 
     @Post('parse')
-    @UseGuards(JwtAuthGuard)
     async parse(@Body() body: ParseInventoryFeedDto) {
         let url: URL;
 

@@ -11,29 +11,42 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JwtAuthGuard = void 0;
 const common_1 = require("@nestjs/common");
-const passport_1 = require("@nestjs/passport");
-const core_1 = require("@nestjs/core");
-const public_decorator_1 = require("../decorators/public.decorator");
-let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
-    reflector;
-    constructor(reflector) {
-        super();
-        this.reflector = reflector;
+const jwt_1 = require("@nestjs/jwt");
+let JwtAuthGuard = class JwtAuthGuard {
+    jwtService;
+    constructor(jwtService) {
+        this.jwtService = jwtService;
     }
-    canActivate(context) {
-        const isPublic = this.reflector.getAllAndOverride(public_decorator_1.IS_PUBLIC_KEY, [
-            context.getHandler(),
-            context.getClass(),
-        ]);
-        if (isPublic) {
+    async canActivate(context) {
+        const request = context.switchToHttp().getRequest();
+        const path = request.route?.path || '';
+        const method = request.method;
+        if (path === '/auth/register' ||
+            path === '/auth/login' ||
+            path.startsWith('/public')) {
             return true;
         }
-        return super.canActivate(context);
+        const authHeader = request.headers.authorization;
+        if (!authHeader) {
+            throw new common_1.UnauthorizedException('Missing token');
+        }
+        const [type, token] = authHeader.split(' ');
+        if (type !== 'Bearer' || !token) {
+            throw new common_1.UnauthorizedException('Invalid token format');
+        }
+        try {
+            const payload = await this.jwtService.verifyAsync(token);
+            request.user = payload;
+            return true;
+        }
+        catch {
+            throw new common_1.UnauthorizedException('Invalid or expired token');
+        }
     }
 };
 exports.JwtAuthGuard = JwtAuthGuard;
 exports.JwtAuthGuard = JwtAuthGuard = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.Reflector])
+    __metadata("design:paramtypes", [jwt_1.JwtService])
 ], JwtAuthGuard);
 //# sourceMappingURL=jwt-auth.guard.js.map
