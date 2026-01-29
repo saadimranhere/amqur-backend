@@ -9,12 +9,13 @@ export class AuthController {
     constructor(private auth: AuthService) { }
 
     @Post('register')
-    @Public()
+    @Public() // ✅ THIS MUST EXIST
     register(@Body() dto: RegisterDto) {
         return this.auth.register(dto);
     }
 
     @Post('login')
+    @Public() // ✅ ADD THIS TOO
     login(@Body() dto: LoginDto) {
         return this.auth.login(dto);
     }
