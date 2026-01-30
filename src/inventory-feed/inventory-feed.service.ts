@@ -8,7 +8,6 @@ export class InventoryFeedService {
   private readonly logger = new Logger(InventoryFeedService.name);
 
   async fetchFeed(url: string): Promise<string> {
-    // Controller enforces allowlist; these limits reduce blast radius.
     const response = await axios.get(url, {
       timeout: 30_000,
       maxRedirects: 0,
@@ -21,10 +20,10 @@ export class InventoryFeedService {
 
       headers: {
         'User-Agent': 'amqur-inventory-feed/1.0',
-        Accept: 'application/xml, text/xml, application/json, text/plain, */*',
+        Accept:
+          'application/xml, text/xml, application/json, text/plain, */*',
       },
     });
-
 
     return response.data;
   }
@@ -36,7 +35,16 @@ export class InventoryFeedService {
 
       case 'JSON': {
         const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : parsed?.vehicles ?? parsed?.inventory ?? [];
+
+        if (Array.isArray(parsed)) return parsed;
+
+        return (
+          parsed?.vehicles ??
+          parsed?.inventory ??
+          parsed?.data?.vehicles ??
+          parsed?.data ??
+          []
+        );
       }
 
       case 'CSV':
@@ -51,18 +59,42 @@ export class InventoryFeedService {
     const parser = new XMLParser({
       ignoreAttributes: false,
       attributeNamePrefix: '',
+      parseAttributeValue: true,
+      trimValues: true,
     });
 
     const json = parser.parse(xml);
 
-    return (
-      json?.inventory?.vehicle ??
-      json?.inventory?.vehicles?.vehicle ??
-      json?.vehicles?.vehicle ??
-      json?.vehicleList?.vehicle ??
-      json?.['vehicle-list']?.vehicle ??
-      []
-    );
+    const candidates = [
+      json?.inventory?.vehicle,
+      json?.inventory?.vehicles?.vehicle,
+      json?.vehicles?.vehicle,
+      json?.vehicle,
+      json?.vehicleList?.vehicle,
+      json?.['vehicle-list']?.vehicle,
+
+      // vAuto / ADF
+      json?.adf?.prospect?.vehicle,
+
+      // DealerOn
+      json?.Inventory?.Vehicle,
+      json?.Inventory?.VehicleList?.Vehicle,
+
+      // Tekion / modern APIs
+      json?.data?.vehicles?.vehicle,
+      json?.data?.vehicles?.item,
+
+      // Generic fallbacks
+      json?.vehicles,
+      json?.inventory,
+    ];
+
+    for (const c of candidates) {
+      if (Array.isArray(c)) return c;
+      if (c && typeof c === 'object') return [c];
+    }
+
+    return [];
   }
 
   private parseCsv(csv: string): any[] {
