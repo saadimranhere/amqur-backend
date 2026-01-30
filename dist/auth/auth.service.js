@@ -56,15 +56,23 @@ let AuthService = class AuthService {
         this.jwt = jwt;
     }
     async register(dto) {
+        const existing = await this.prisma.user.findUnique({
+            where: { email: dto.email.toLowerCase() },
+        });
+        if (existing) {
+            throw new common_1.UnauthorizedException('User already exists');
+        }
         const user = await this.prisma.user.create({
             data: {
-                email: dto.email,
+                email: dto.email.toLowerCase(),
                 password: await bcrypt.hash(dto.password, 10),
                 firstName: dto.firstName,
                 lastName: dto.lastName,
                 tenantId: dto.tenantId,
-                locationId: dto.locationId,
-                role: client_1.Role.ADMIN,
+                role: client_1.Role.SUPER_ADMIN,
+                ...(dto.locationId && {
+                    locationId: dto.locationId,
+                }),
             },
         });
         const { password, ...safeUser } = user;
@@ -72,7 +80,7 @@ let AuthService = class AuthService {
     }
     async login(dto) {
         const user = await this.prisma.user.findUnique({
-            where: { email: dto.email },
+            where: { email: dto.email.toLowerCase() },
         });
         if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');

@@ -4,5 +4,5 @@ export declare class RegisterDto {
     firstName: string;
     lastName: string;
     tenantId: string;
-    locationId: string;
+    locationId?: string;
 }

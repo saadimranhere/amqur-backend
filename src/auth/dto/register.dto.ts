@@ -1,8 +1,8 @@
 import {
     IsEmail,
+    IsOptional,
     IsString,
     MinLength,
-    IsOptional,
     ValidateIf,
 } from 'class-validator';
 
@@ -22,7 +22,7 @@ export class RegisterDto {
     @IsString()
     tenantId: string;
 
-    // 🔥 THIS IS THE FIX
+    // ✅ THIS IS THE KEY FIX
     @ValidateIf((o) => o.locationId !== undefined)
     @IsString()
     locationId?: string;
