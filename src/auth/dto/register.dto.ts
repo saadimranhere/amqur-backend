@@ -16,8 +16,7 @@ export class RegisterDto {
     @IsString()
     tenantId: string;
 
-    // ✅ MUST BE OPTIONAL
+    // ✅ OPTIONAL = NO TYPE VALIDATOR
     @IsOptional()
-    @IsString()
     locationId?: string;
 }
