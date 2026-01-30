@@ -1,4 +1,10 @@
-import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
+import {
+    IsEmail,
+    IsString,
+    MinLength,
+    IsOptional,
+    ValidateIf,
+} from 'class-validator';
 
 export class RegisterDto {
     @IsEmail()
@@ -16,7 +22,8 @@ export class RegisterDto {
     @IsString()
     tenantId: string;
 
-    // ✅ OPTIONAL = NO TYPE VALIDATOR
-    @IsOptional()
+    // 🔥 THIS IS THE FIX
+    @ValidateIf((o) => o.locationId !== undefined)
+    @IsString()
     locationId?: string;
 }
