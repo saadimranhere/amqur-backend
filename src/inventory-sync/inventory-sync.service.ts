@@ -25,6 +25,12 @@ export class InventorySyncService {
      */
     @Cron('*/30 * * * *')
     async sync() {
+
+        if (process.env.INVENTORY_SYNC_ENABLED !== 'true') {
+            this.logger.warn('⏸ Inventory sync disabled by env flag');
+            return;
+        }
+
         this.logger.log('🔄 Inventory auto-sync started');
 
         const locations = await this.prisma.location.findMany();
@@ -32,7 +38,9 @@ export class InventorySyncService {
         const locationsWithFeeds = locations.filter(
             (l) =>
                 typeof l.inventoryFeedUrl === 'string' &&
-                l.inventoryFeedUrl.trim().length > 0,
+                l.inventoryFeedUrl.trim().length > 0 &&
+                l.inventoryFeedType !== null &&
+                l.inventoryFeedType !== undefined,
         );
 
         if (!locationsWithFeeds.length) {
@@ -42,42 +50,30 @@ export class InventorySyncService {
 
         for (const location of locationsWithFeeds) {
             try {
+                this.logger.log(`📥 Inventory sync starting for ${location.name}`);
+
+                const rawFeed = await this.feed.fetchFeed(location.inventoryFeedUrl!);
+
+                const records = this.feed.parseFeed(location.inventoryFeedType as any, rawFeed);
+
+                const vehicles = records
+                    .map((r) => VehicleNormalizer.normalize(r))
+                    .filter((v) => v !== null);
+
                 this.logger.log(
-                    `📥 Inventory sync starting for ${location.name}`,
-                );
-
-                const rawFeed = await this.feed.fetchFeed(
-                    location.inventoryFeedUrl!,
-                );
-
-                const records = this.feed.parseFeed(
-                    location.inventoryFeedType!,
-                    rawFeed,
-                );
-
-                const vehicles = records.map(
-                    VehicleNormalizer.normalize,
+                    `🧪 Parsed ${records.length} records, normalized ${vehicles.length} valid vehicles for ${location.name}`,
                 );
 
                 // 1️⃣ Upsert inventory (VIN is truth)
-                await this.inventory.upsertVehicles(
-                    location.tenantId,
-                    location.id,
-                    vehicles,
-                );
+                await this.inventory.upsertVehicles(location.tenantId, location.id, vehicles);
 
                 // 2️⃣ Lifecycle reconciliation
                 // AVAILABLE → MISSING → SOLD (time-based)
                 await this.inventory.updateVehicleLifecycle(location.id);
 
-                this.logger.log(
-                    `✅ ${vehicles.length} vehicles synced for ${location.name}`,
-                );
+                this.logger.log(`✅ ${vehicles.length} vehicles synced for ${location.name}`);
             } catch (error: any) {
-                this.logger.error(
-                    `❌ Inventory sync failed for ${location.name}`,
-                    error?.message ?? error,
-                );
+                this.logger.error(`❌ Inventory sync failed for ${location.name}`, error?.message ?? error);
             }
         }
 

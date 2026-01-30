@@ -1,11 +1,4 @@
-import {
-    BadRequestException,
-    Body,
-    Controller,
-    ForbiddenException,
-    Post,
-    UseGuards,
-} from '@nestjs/common';
+import { BadRequestException, Body, Controller, ForbiddenException, Post } from '@nestjs/common';
 import { InventoryFeedService } from './inventory-feed.service';
 import { VehicleNormalizer } from './normalizer/vehicle.normalizer';
 import { ParseInventoryFeedDto } from './dto/parse-inventory-feed.dto';
@@ -48,7 +41,10 @@ export class InventoryFeedController {
 
         const raw = await this.feed.fetchFeed(url.toString());
         const records = this.feed.parseFeed(body.type, raw);
-        const vehicles = records.map(VehicleNormalizer.normalize);
+
+        const vehicles = records
+            .map((r) => VehicleNormalizer.normalize(r))
+            .filter((v) => v !== null);
 
         return {
             count: vehicles.length,

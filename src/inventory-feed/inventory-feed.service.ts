@@ -13,8 +13,11 @@ export class InventoryFeedService {
       timeout: 10_000,
       maxRedirects: 0,
       responseType: 'text',
-      maxContentLength: 5 * 1024 * 1024, // 5 MB
-      maxBodyLength: 5 * 1024 * 1024, // 5 MB
+
+      // ✅ Increase to 25MB for real dealer feeds (still safe)
+      maxContentLength: 25 * 1024 * 1024,
+      maxBodyLength: 25 * 1024 * 1024,
+
       validateStatus: (status) => status >= 200 && status < 300,
       headers: {
         'User-Agent': 'amqur-inventory-feed/1.0',
@@ -30,8 +33,10 @@ export class InventoryFeedService {
       case 'XML':
         return this.parseXml(raw);
 
-      case 'JSON':
-        return JSON.parse(raw);
+      case 'JSON': {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : parsed?.vehicles ?? parsed?.inventory ?? [];
+      }
 
       case 'CSV':
         return this.parseCsv(raw);
@@ -49,7 +54,16 @@ export class InventoryFeedService {
 
     const json = parser.parse(xml);
 
-    return json?.inventory?.vehicle ?? json?.vehicles?.vehicle ?? [];
+    // Support a few common shapes
+    const candidates =
+      json?.inventory?.vehicle ??
+      json?.inventory?.vehicles?.vehicle ??
+      json?.vehicles?.vehicle ??
+      json?.vehicles ??
+      json?.vehicle;
+
+    if (!candidates) return [];
+    return Array.isArray(candidates) ? candidates : [candidates];
   }
 
   private parseCsv(csv: string): any[] {
