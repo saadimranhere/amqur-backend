@@ -10,20 +10,21 @@ export class InventoryFeedService {
   async fetchFeed(url: string): Promise<string> {
     // Controller enforces allowlist; these limits reduce blast radius.
     const response = await axios.get(url, {
-      timeout: 10_000,
+      timeout: 30_000,
       maxRedirects: 0,
       responseType: 'text',
 
-      // ✅ Increase to 25MB for real dealer feeds (still safe)
       maxContentLength: 25 * 1024 * 1024,
       maxBodyLength: 25 * 1024 * 1024,
 
       validateStatus: (status) => status >= 200 && status < 300,
+
       headers: {
         'User-Agent': 'amqur-inventory-feed/1.0',
         Accept: 'application/xml, text/xml, application/json, text/plain, */*',
       },
     });
+
 
     return response.data;
   }
@@ -54,16 +55,14 @@ export class InventoryFeedService {
 
     const json = parser.parse(xml);
 
-    // Support a few common shapes
-    const candidates =
+    return (
       json?.inventory?.vehicle ??
       json?.inventory?.vehicles?.vehicle ??
       json?.vehicles?.vehicle ??
-      json?.vehicles ??
-      json?.vehicle;
-
-    if (!candidates) return [];
-    return Array.isArray(candidates) ? candidates : [candidates];
+      json?.vehicleList?.vehicle ??
+      json?.['vehicle-list']?.vehicle ??
+      []
+    );
   }
 
   private parseCsv(csv: string): any[] {
