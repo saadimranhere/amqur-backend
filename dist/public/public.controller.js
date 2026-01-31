@@ -14,75 +14,23 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PublicController = void 0;
 const common_1 = require("@nestjs/common");
-const jwt_1 = require("@nestjs/jwt");
-const prisma_service_1 = require("../prisma/prisma.service");
+const public_service_1 = require("./public.service");
+const public_decorator_1 = require("../common/decorators/public.decorator");
 let PublicController = class PublicController {
-    prisma;
-    jwtService;
-    constructor(prisma, jwtService) {
-        this.prisma = prisma;
-        this.jwtService = jwtService;
+    publicService;
+    constructor(publicService) {
+        this.publicService = publicService;
     }
     async widgetConfig(tenantSlug, locationSlug) {
-        const tenant = await this.prisma.tenant.findUnique({
-            where: { slug: tenantSlug },
-            select: { id: true, name: true, slug: true },
-        });
-        if (!tenant) {
-            return { ok: false, error: 'TENANT_NOT_FOUND' };
-        }
-        const location = await this.prisma.location.findFirst({
-            where: {
-                tenantId: tenant.id,
-                slug: locationSlug,
-            },
-            select: { id: true, name: true, slug: true },
-        });
-        if (!location) {
-            return { ok: false, error: 'LOCATION_NOT_FOUND' };
-        }
-        return {
-            ok: true,
-            tenant,
-            location,
-        };
+        return this.publicService.getWidgetConfig(tenantSlug, locationSlug);
     }
-    async widgetToken(body) {
-        const tenant = await this.prisma.tenant.findUnique({
-            where: { slug: body.tenantSlug },
-            select: { id: true },
-        });
-        if (!tenant) {
-            throw new common_1.BadRequestException('TENANT_NOT_FOUND');
-        }
-        const location = await this.prisma.location.findFirst({
-            where: {
-                tenantId: tenant.id,
-                slug: body.locationSlug,
-            },
-            select: { id: true },
-        });
-        if (!location) {
-            throw new common_1.BadRequestException('LOCATION_NOT_FOUND');
-        }
-        const token = this.jwtService.sign({
-            tenantId: tenant.id,
-            locationId: location.id,
-            role: 'widget',
-            scope: ['chat'],
-        }, {
-            secret: process.env.JWT_SECRET,
-            expiresIn: '30m',
-        });
-        return {
-            ok: true,
-            token,
-            expiresIn: 1800,
-        };
+    health() {
+        return { ok: true };
     }
 };
 exports.PublicController = PublicController;
 __decorate([
+    (0, public_decorator_1.Public)(),
     (0, common_1.Get)('widget-config'),
     __param(0, (0, common_1.Query)('tenantSlug')),
     __param(1, (0, common_1.Query)('locationSlug')),
@@ -91,15 +39,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PublicController.prototype, "widgetConfig", null);
 __decorate([
-    (0, common_1.Post)('widget-token'),
-    __param(0, (0, common_1.Body)()),
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('health'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], PublicController.prototype, "widgetToken", null);
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], PublicController.prototype, "health", null);
 exports.PublicController = PublicController = __decorate([
     (0, common_1.Controller)('public'),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        jwt_1.JwtService])
+    __metadata("design:paramtypes", [public_service_1.PublicService])
 ], PublicController);
 //# sourceMappingURL=public.controller.js.map

@@ -55,6 +55,10 @@ let AuthService = class AuthService {
         this.prisma = prisma;
         this.jwt = jwt;
     }
+    sanitizeUser(user) {
+        const { password, ...safeUser } = user;
+        return safeUser;
+    }
     async register(dto) {
         const existing = await this.prisma.user.findUnique({
             where: { email: dto.email.toLowerCase() },
@@ -75,8 +79,7 @@ let AuthService = class AuthService {
                 }),
             },
         });
-        const { password, ...safeUser } = user;
-        return safeUser;
+        return this.sanitizeUser(user);
     }
     async login(dto) {
         const user = await this.prisma.user.findUnique({
@@ -95,10 +98,9 @@ let AuthService = class AuthService {
             locationId: user.locationId,
             role: user.role,
         });
-        const { password, ...safeUser } = user;
         return {
             accessToken: token,
-            user: safeUser,
+            user: this.sanitizeUser(user),
         };
     }
 };

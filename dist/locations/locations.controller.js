@@ -16,7 +16,7 @@ exports.LocationsController = void 0;
 const common_1 = require("@nestjs/common");
 const locations_service_1 = require("./locations.service");
 const create_location_dto_1 = require("./dto/create-location.dto");
-const roles_decorator_1 = require("../auth/decorators/roles.decorator");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
 let LocationsController = class LocationsController {
     locationsService;
     constructor(locationsService) {

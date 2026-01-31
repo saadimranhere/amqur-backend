@@ -28,10 +28,16 @@ let InventorySyncService = InventorySyncService_1 = class InventorySyncService {
         this.inventory = inventory;
     }
     async sync() {
+        if (process.env.INVENTORY_SYNC_ENABLED !== 'true') {
+            this.logger.warn('⏸ Inventory sync disabled by env flag');
+            return;
+        }
         this.logger.log('🔄 Inventory auto-sync started');
         const locations = await this.prisma.location.findMany();
         const locationsWithFeeds = locations.filter((l) => typeof l.inventoryFeedUrl === 'string' &&
-            l.inventoryFeedUrl.trim().length > 0);
+            l.inventoryFeedUrl.trim().length > 0 &&
+            l.inventoryFeedType !== null &&
+            l.inventoryFeedType !== undefined);
         if (!locationsWithFeeds.length) {
             this.logger.log('ℹ️ No inventory feeds configured');
             return;
@@ -41,7 +47,10 @@ let InventorySyncService = InventorySyncService_1 = class InventorySyncService {
                 this.logger.log(`📥 Inventory sync starting for ${location.name}`);
                 const rawFeed = await this.feed.fetchFeed(location.inventoryFeedUrl);
                 const records = this.feed.parseFeed(location.inventoryFeedType, rawFeed);
-                const vehicles = records.map(vehicle_normalizer_1.VehicleNormalizer.normalize);
+                const vehicles = records
+                    .map((r) => vehicle_normalizer_1.VehicleNormalizer.normalize(r))
+                    .filter((v) => v !== null);
+                this.logger.log(`🧪 Parsed ${records.length} records, normalized ${vehicles.length} valid vehicles for ${location.name}`);
                 await this.inventory.upsertVehicles(location.tenantId, location.id, vehicles);
                 await this.inventory.updateVehicleLifecycle(location.id);
                 this.logger.log(`✅ ${vehicles.length} vehicles synced for ${location.name}`);

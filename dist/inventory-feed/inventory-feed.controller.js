@@ -25,8 +25,7 @@ function isHostAllowed(hostname) {
         .filter(Boolean);
     if (allowed.length === 0)
         return false;
-    const host = hostname.toLowerCase();
-    return allowed.includes(host);
+    return allowed.includes(hostname.toLowerCase());
 }
 let InventoryFeedController = class InventoryFeedController {
     feed;
@@ -49,7 +48,12 @@ let InventoryFeedController = class InventoryFeedController {
         }
         const raw = await this.feed.fetchFeed(url.toString());
         const records = this.feed.parseFeed(body.type, raw);
-        const vehicles = records.map(vehicle_normalizer_1.VehicleNormalizer.normalize);
+        if (!Array.isArray(records)) {
+            throw new common_1.BadRequestException('Feed parsed successfully but no vehicle array was found. Please verify feed structure.');
+        }
+        const vehicles = records
+            .map((record) => vehicle_normalizer_1.VehicleNormalizer.normalize(record))
+            .filter((v) => v !== null);
         return {
             count: vehicles.length,
             sample: vehicles.slice(0, 3),

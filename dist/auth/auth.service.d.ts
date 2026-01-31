@@ -6,29 +6,10 @@ export declare class AuthService {
     private prisma;
     private jwt;
     constructor(prisma: PrismaService, jwt: JwtService);
-    register(dto: RegisterDto): Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        email: string;
-        firstName: string;
-        lastName: string;
-        tenantId: string;
-        locationId: string | null;
-        role: import("@prisma/client").$Enums.Role;
-    }>;
+    private sanitizeUser;
+    register(dto: RegisterDto): Promise<any>;
     login(dto: LoginDto): Promise<{
         accessToken: string;
-        user: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            email: string;
-            firstName: string;
-            lastName: string;
-            tenantId: string;
-            locationId: string | null;
-            role: import("@prisma/client").$Enums.Role;
-        };
+        user: any;
     }>;
 }

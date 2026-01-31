@@ -13,7 +13,7 @@ exports.JwtAuthGuard = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const core_1 = require("@nestjs/core");
-const public_decorator_1 = require("../decorators/public.decorator");
+const public_decorator_1 = require("../../common/decorators/public.decorator");
 let JwtAuthGuard = class JwtAuthGuard {
     jwtService;
     reflector;
@@ -22,9 +22,13 @@ let JwtAuthGuard = class JwtAuthGuard {
         this.reflector = reflector;
     }
     async canActivate(context) {
-        const isPublic = this.reflector.getAllAndOverride(public_decorator_1.IS_PUBLIC_KEY, [context.getHandler(), context.getClass()]);
-        if (isPublic)
+        const handler = context.getHandler();
+        const controller = context.getClass();
+        const isPublic = this.reflector.get(public_decorator_1.IS_PUBLIC_KEY, handler) ??
+            this.reflector.get(public_decorator_1.IS_PUBLIC_KEY, controller);
+        if (isPublic) {
             return true;
+        }
         const request = context.switchToHttp().getRequest();
         const authHeader = request.headers.authorization;
         if (!authHeader) {

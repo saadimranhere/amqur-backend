@@ -6,18 +6,21 @@ export declare class InventoryFeedController {
     parse(body: ParseInventoryFeedDto): Promise<{
         count: number;
         sample: {
-            vin: any;
-            stock: any;
+            vin: string;
+            stock?: string;
             year: number;
-            make: any;
-            model: any;
-            trim: any;
-            price: number;
-            msrp: number;
-            mileage: number;
-            color: any;
-            locationId: any;
-            status: any;
+            make: string;
+            model: string;
+            trim?: string;
+            bodyType?: string;
+            drivetrain?: string;
+            transmission?: string;
+            fuelType?: string;
+            color?: string;
+            price?: number;
+            msrp?: number;
+            mileage?: number;
+            photos?: string[];
         }[];
     }>;
 }

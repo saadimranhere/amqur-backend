@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("./users.service");
-const roles_decorator_1 = require("../auth/decorators/roles.decorator");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {

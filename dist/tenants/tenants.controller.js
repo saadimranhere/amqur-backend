@@ -16,7 +16,7 @@ exports.TenantsController = void 0;
 const common_1 = require("@nestjs/common");
 const tenants_service_1 = require("./tenants.service");
 const create_tenant_dto_1 = require("./dto/create-tenant.dto");
-const public_decorator_1 = require("../auth/decorators/public.decorator");
+const public_decorator_1 = require("../common/decorators/public.decorator");
 let TenantsController = class TenantsController {
     tenantsService;
     constructor(tenantsService) {

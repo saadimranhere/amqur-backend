@@ -10,7 +10,6 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const throttler_1 = require("@nestjs/throttler");
-const core_1 = require("@nestjs/core");
 const schedule_1 = require("@nestjs/schedule");
 const prisma_module_1 = require("./prisma/prisma.module");
 const tenants_module_1 = require("./tenants/tenants.module");
@@ -22,12 +21,10 @@ const inventory_module_1 = require("./inventory/inventory.module");
 const inventory_feed_module_1 = require("./inventory-feed/inventory-feed.module");
 const inventory_sync_module_1 = require("./inventory-sync/inventory-sync.module");
 const public_module_1 = require("./public/public.module");
-const jwt_auth_guard_1 = require("./auth/guards/jwt-auth.guard");
-const public_throttler_guard_1 = require("./auth/guards/public-throttler.guard");
 const logger_middleware_1 = require("./common/middleware/logger.middleware");
 let AppModule = class AppModule {
     configure(consumer) {
-        consumer.apply(logger_middleware_1.LoggerMiddleware).forRoutes('*');
+        consumer.apply(logger_middleware_1.LoggerMiddleware).forRoutes('api/*');
     }
 };
 exports.AppModule = AppModule;
@@ -50,22 +47,13 @@ exports.AppModule = AppModule = __decorate([
             locations_module_1.LocationsModule,
             users_module_1.UsersModule,
             auth_module_1.AuthModule,
+            public_module_1.PublicModule,
             chat_module_1.ChatModule,
             inventory_module_1.InventoryModule,
             inventory_feed_module_1.InventoryFeedModule,
             inventory_sync_module_1.InventorySyncModule,
-            public_module_1.PublicModule,
         ],
-        providers: [
-            {
-                provide: core_1.APP_GUARD,
-                useClass: jwt_auth_guard_1.JwtAuthGuard,
-            },
-            {
-                provide: core_1.APP_GUARD,
-                useClass: public_throttler_guard_1.PublicAwareThrottlerGuard,
-            },
-        ],
+        providers: [],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

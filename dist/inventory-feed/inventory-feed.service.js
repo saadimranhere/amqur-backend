@@ -19,11 +19,11 @@ let InventoryFeedService = InventoryFeedService_1 = class InventoryFeedService {
     logger = new common_1.Logger(InventoryFeedService_1.name);
     async fetchFeed(url) {
         const response = await axios_1.default.get(url, {
-            timeout: 10_000,
+            timeout: 30_000,
             maxRedirects: 0,
             responseType: 'text',
-            maxContentLength: 5 * 1024 * 1024,
-            maxBodyLength: 5 * 1024 * 1024,
+            maxContentLength: 25 * 1024 * 1024,
+            maxBodyLength: 25 * 1024 * 1024,
             validateStatus: (status) => status >= 200 && status < 300,
             headers: {
                 'User-Agent': 'amqur-inventory-feed/1.0',
@@ -36,8 +36,16 @@ let InventoryFeedService = InventoryFeedService_1 = class InventoryFeedService {
         switch (type) {
             case 'XML':
                 return this.parseXml(raw);
-            case 'JSON':
-                return JSON.parse(raw);
+            case 'JSON': {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed))
+                    return parsed;
+                return (parsed?.vehicles ??
+                    parsed?.inventory ??
+                    parsed?.data?.vehicles ??
+                    parsed?.data ??
+                    []);
+            }
             case 'CSV':
                 return this.parseCsv(raw);
             default:
@@ -48,9 +56,32 @@ let InventoryFeedService = InventoryFeedService_1 = class InventoryFeedService {
         const parser = new fast_xml_parser_1.XMLParser({
             ignoreAttributes: false,
             attributeNamePrefix: '',
+            parseAttributeValue: true,
+            trimValues: true,
         });
         const json = parser.parse(xml);
-        return json?.inventory?.vehicle ?? json?.vehicles?.vehicle ?? [];
+        const candidates = [
+            json?.inventory?.vehicle,
+            json?.inventory?.vehicles?.vehicle,
+            json?.vehicles?.vehicle,
+            json?.vehicle,
+            json?.vehicleList?.vehicle,
+            json?.['vehicle-list']?.vehicle,
+            json?.adf?.prospect?.vehicle,
+            json?.Inventory?.Vehicle,
+            json?.Inventory?.VehicleList?.Vehicle,
+            json?.data?.vehicles?.vehicle,
+            json?.data?.vehicles?.item,
+            json?.vehicles,
+            json?.inventory,
+        ];
+        for (const c of candidates) {
+            if (Array.isArray(c))
+                return c;
+            if (c && typeof c === 'object')
+                return [c];
+        }
+        return [];
     }
     parseCsv(csv) {
         return (0, sync_1.parse)(csv, {

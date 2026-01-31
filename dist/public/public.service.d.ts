@@ -1,8 +1,8 @@
-import { PublicService } from './public.service';
-export declare class PublicController {
-    private readonly publicService;
-    constructor(publicService: PublicService);
-    widgetConfig(tenantSlug: string, locationSlug?: string): Promise<{
+import { PrismaService } from '../prisma/prisma.service';
+export declare class PublicService {
+    private prisma;
+    constructor(prisma: PrismaService);
+    getWidgetConfig(tenantSlug: string, locationSlug?: string): Promise<{
         ok: boolean;
         tenant: {
             id: string;
@@ -25,7 +25,4 @@ export declare class PublicController {
             payments: boolean;
         };
     }>;
-    health(): {
-        ok: boolean;
-    };
 }

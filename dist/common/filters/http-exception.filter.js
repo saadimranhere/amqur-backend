@@ -13,27 +13,18 @@ let GlobalExceptionFilter = class GlobalExceptionFilter {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
         const request = ctx.getRequest();
-        let status = common_1.HttpStatus.INTERNAL_SERVER_ERROR;
-        let message = 'Internal server error';
-        if (exception instanceof common_1.HttpException) {
-            status = exception.getStatus();
-            const res = exception.getResponse();
-            message =
-                typeof res === 'string'
-                    ? res
-                    : res.message ?? exception.message;
-        }
+        const status = exception.getStatus();
         response.status(status).json({
             success: false,
             status,
             path: request.url,
-            message,
+            message: exception.message,
             timestamp: new Date().toISOString(),
         });
     }
 };
 exports.GlobalExceptionFilter = GlobalExceptionFilter;
 exports.GlobalExceptionFilter = GlobalExceptionFilter = __decorate([
-    (0, common_1.Catch)()
+    (0, common_1.Catch)(common_1.HttpException)
 ], GlobalExceptionFilter);
 //# sourceMappingURL=http-exception.filter.js.map
