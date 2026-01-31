@@ -21,16 +21,16 @@ import { InventorySyncModule } from './inventory-sync/inventory-sync.module';
 import { PublicModule } from './public/public.module';
 
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
-import { PublicAwareThrottlerGuard } from './auth/guards/public-throttler.guard';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
-
 
 @Module({
   imports: [
+    // 🌎 ENV
     ConfigModule.forRoot({
       isGlobal: true,
     }),
 
+    // 🚦 Rate limiting
     ThrottlerModule.forRoot([
       {
         name: 'default',
@@ -39,33 +39,32 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
       },
     ]),
 
+    // ⏱ scheduled jobs
     ScheduleModule.forRoot(),
 
+    // 🧠 Core
     PrismaModule,
+
+    // 🏢 Platform modules
     TenantsModule,
     LocationsModule,
     UsersModule,
     AuthModule,
+    PublicModule,
+
+    // 🤖 Product modules
     ChatModule,
     InventoryModule,
     InventoryFeedModule,
     InventorySyncModule,
-    PublicModule,
   ],
 
   providers: [
-    // 🔐 Global JWT guard (respects @Public)
+    // 🔐 SINGLE global auth guard
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-
-    // 🚦 Global rate limiting
-    {
-      provide: APP_GUARD,
-      useClass: PublicAwareThrottlerGuard,
-    },
-
   ],
 })
 export class AppModule implements NestModule {
