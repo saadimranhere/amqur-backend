@@ -2,13 +2,13 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { PublicService } from './public.service';
 import { Public } from '../common/decorators/public.decorator';
 
-@Public()
 @Controller('public')
 export class PublicController {
     constructor(
         private readonly publicService: PublicService,
     ) { }
 
+    @Public()
     @Get('widget-config')
     async widgetConfig(
         @Query('tenantSlug') tenantSlug: string,
@@ -18,5 +18,11 @@ export class PublicController {
             tenantSlug,
             locationSlug,
         );
+    }
+
+    @Public()
+    @Get('health')
+    health() {
+        return { ok: true };
     }
 }
