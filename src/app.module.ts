@@ -60,12 +60,9 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
   ],
 
   providers: [
-    // 🔐 SINGLE global JWT guard
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
+    // 🔓 AUTH TEMPORARILY DISABLED FOR TESTING
   ],
+
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
