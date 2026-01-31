@@ -30,7 +30,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
       isGlobal: true,
     }),
 
-    // 🚦 Rate limiting
+    // 🚦 Rate limiting (NestJS throttler v6)
     ThrottlerModule.forRoot([
       {
         name: 'default',
@@ -60,7 +60,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
   ],
 
   providers: [
-    // 🔐 SINGLE global auth guard
+    // 🔐 SINGLE global JWT guard
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
@@ -69,6 +69,6 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*');
+    consumer.apply(LoggerMiddleware).forRoutes('api/*');
   }
 }
