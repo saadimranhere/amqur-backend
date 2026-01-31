@@ -13,7 +13,13 @@ export class AuthService {
         private jwt: JwtService,
     ) { }
 
-    // ✅ STEP 2 — CREATE FIRST SUPER ADMIN
+    // 🔒 single source of truth for safe user responses
+    private sanitizeUser(user: any) {
+        const { password, ...safeUser } = user;
+        return safeUser;
+    }
+
+    // ✅ CREATE FIRST SUPER ADMIN
     async register(dto: RegisterDto) {
         const existing = await this.prisma.user.findUnique({
             where: { email: dto.email.toLowerCase() },
@@ -33,7 +39,7 @@ export class AuthService {
 
                 tenantId: dto.tenantId,
 
-                // 🔐 FIRST USER IS ALWAYS SUPER_ADMIN
+                // 🔐 first account is always SUPER_ADMIN
                 role: Role.SUPER_ADMIN,
 
                 ...(dto.locationId && {
@@ -42,8 +48,7 @@ export class AuthService {
             },
         });
 
-        const { password, ...safeUser } = user;
-        return safeUser;
+        return this.sanitizeUser(user);
     }
 
     async login(dto: LoginDto) {
@@ -68,11 +73,9 @@ export class AuthService {
             role: user.role,
         });
 
-        const { password, ...safeUser } = user;
-
         return {
             accessToken: token,
-            user: safeUser,
+            user: this.sanitizeUser(user),
         };
     }
 }
