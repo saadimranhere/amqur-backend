@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 
 import { ConfigModule } from '@nestjs/config';
+import { envValidationSchema } from './config/env.validation';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -25,12 +26,13 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 @Module({
   imports: [
-    // 🌎 ENV
+    // 🌎 ENV VALIDATION (must be FIRST)
     ConfigModule.forRoot({
       isGlobal: true,
+      validationSchema: envValidationSchema,
     }),
 
-    // 🚦 Rate limiting (NestJS throttler v6)
+    // 🚦 Rate limiting
     ThrottlerModule.forRoot([
       {
         name: 'default',
@@ -39,7 +41,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
       },
     ]),
 
-    // ⏱ scheduled jobs
+    // ⏱ Scheduled jobs
     ScheduleModule.forRoot(),
 
     // 🧠 Core
@@ -60,12 +62,15 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
   ],
 
   providers: [
-    // 🔓 AUTH TEMPORARILY DISABLED FOR TESTING
+    // 🔐 Re-enable global JWT protection
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
   ],
-
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('api/*');
+    consumer.apply(LoggerMiddleware).forRoutes('{*path}');
   }
 }

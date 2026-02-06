@@ -1,7 +1,10 @@
 import { PublicService } from './public.service';
+import { WidgetAuthService } from './widget-auth.service';
+import { WidgetTokenDto } from './dto/widget-token.dto';
 export declare class PublicController {
     private readonly publicService;
-    constructor(publicService: PublicService);
+    private readonly widgetAuthService;
+    constructor(publicService: PublicService, widgetAuthService: WidgetAuthService);
     widgetConfig(tenantSlug: string, locationSlug?: string): Promise<{
         ok: boolean;
         tenant: {
@@ -24,6 +27,9 @@ export declare class PublicController {
             inventory: boolean;
             payments: boolean;
         };
+    }>;
+    createWidgetToken(dto: WidgetTokenDto): Promise<{
+        token: string;
     }>;
     health(): {
         ok: boolean;

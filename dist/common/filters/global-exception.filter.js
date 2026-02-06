@@ -42,4 +42,4 @@ exports.GlobalExceptionFilter = GlobalExceptionFilter;
 exports.GlobalExceptionFilter = GlobalExceptionFilter = __decorate([
     (0, common_1.Catch)()
 ], GlobalExceptionFilter);
-//# sourceMappingURL=http-exception.filter.js.map
+//# sourceMappingURL=global-exception.filter.js.map

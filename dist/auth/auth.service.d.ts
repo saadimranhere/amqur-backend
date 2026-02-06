@@ -7,9 +7,13 @@ export declare class AuthService {
     private jwt;
     constructor(prisma: PrismaService, jwt: JwtService);
     private sanitizeUser;
-    register(dto: RegisterDto): Promise<any>;
+    private buildToken;
+    register(dto: RegisterDto): Promise<{
+        access_token: string;
+        user: any;
+    }>;
     login(dto: LoginDto): Promise<{
-        accessToken: string;
+        access_token: string;
         user: any;
     }>;
 }

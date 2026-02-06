@@ -59,6 +59,14 @@ let AuthService = class AuthService {
         const { password, ...safeUser } = user;
         return safeUser;
     }
+    buildToken(user) {
+        return this.jwt.sign({
+            sub: user.id,
+            tenantId: user.tenantId,
+            locationId: user.locationId,
+            role: user.role,
+        });
+    }
     async register(dto) {
         const existing = await this.prisma.user.findUnique({
             where: { email: dto.email.toLowerCase() },
@@ -66,20 +74,23 @@ let AuthService = class AuthService {
         if (existing) {
             throw new common_1.UnauthorizedException('User already exists');
         }
+        const hashedPassword = await bcrypt.hash(dto.password, 10);
         const user = await this.prisma.user.create({
             data: {
                 email: dto.email.toLowerCase(),
-                password: await bcrypt.hash(dto.password, 10),
+                password: hashedPassword,
                 firstName: dto.firstName,
                 lastName: dto.lastName,
                 tenantId: dto.tenantId,
                 role: client_1.Role.SUPER_ADMIN,
-                ...(dto.locationId && {
-                    locationId: dto.locationId,
-                }),
+                ...(dto.locationId && { locationId: dto.locationId }),
             },
         });
-        return this.sanitizeUser(user);
+        const token = this.buildToken(user);
+        return {
+            access_token: token,
+            user: this.sanitizeUser(user),
+        };
     }
     async login(dto) {
         const user = await this.prisma.user.findUnique({
@@ -88,18 +99,13 @@ let AuthService = class AuthService {
         if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        const valid = await bcrypt.compare(dto.password, user.password);
-        if (!valid) {
+        const passwordValid = await bcrypt.compare(dto.password, user.password);
+        if (!passwordValid) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        const token = this.jwt.sign({
-            sub: user.id,
-            tenantId: user.tenantId,
-            locationId: user.locationId,
-            role: user.role,
-        });
+        const token = this.buildToken(user);
         return {
-            accessToken: token,
+            access_token: token,
             user: this.sanitizeUser(user),
         };
     }

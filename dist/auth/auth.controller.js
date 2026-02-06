@@ -19,15 +19,15 @@ const login_dto_1 = require("./dto/login.dto");
 const register_dto_1 = require("./dto/register.dto");
 const public_decorator_1 = require("../common/decorators/public.decorator");
 let AuthController = class AuthController {
-    auth;
-    constructor(auth) {
-        this.auth = auth;
+    authService;
+    constructor(authService) {
+        this.authService = authService;
     }
     register(dto) {
-        return this.auth.register(dto);
+        return this.authService.register(dto);
     }
     login(dto) {
-        return this.auth.login(dto);
+        return this.authService.login(dto);
     }
 };
 exports.AuthController = AuthController;

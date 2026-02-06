@@ -3,27 +3,29 @@ import {
     IsOptional,
     IsString,
     MinLength,
-    ValidateIf,
+    IsUUID,
 } from 'class-validator';
 
 export class RegisterDto {
     @IsEmail()
     email: string;
 
-    @MinLength(8)
+    @IsString()
+    @MinLength(6)
     password: string;
 
     @IsString()
+    @MinLength(2)
     firstName: string;
 
     @IsString()
+    @MinLength(2)
     lastName: string;
 
-    @IsString()
+    @IsUUID()
     tenantId: string;
 
-    // ✅ THIS IS THE KEY FIX
-    @ValidateIf((o) => o.locationId !== undefined)
-    @IsString()
+    @IsOptional()
+    @IsUUID()
     locationId?: string;
 }

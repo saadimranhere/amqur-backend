@@ -9,7 +9,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
+const env_validation_1 = require("./config/env.validation");
 const throttler_1 = require("@nestjs/throttler");
+const core_1 = require("@nestjs/core");
 const schedule_1 = require("@nestjs/schedule");
 const prisma_module_1 = require("./prisma/prisma.module");
 const tenants_module_1 = require("./tenants/tenants.module");
@@ -21,10 +23,11 @@ const inventory_module_1 = require("./inventory/inventory.module");
 const inventory_feed_module_1 = require("./inventory-feed/inventory-feed.module");
 const inventory_sync_module_1 = require("./inventory-sync/inventory-sync.module");
 const public_module_1 = require("./public/public.module");
+const jwt_auth_guard_1 = require("./auth/guards/jwt-auth.guard");
 const logger_middleware_1 = require("./common/middleware/logger.middleware");
 let AppModule = class AppModule {
     configure(consumer) {
-        consumer.apply(logger_middleware_1.LoggerMiddleware).forRoutes('api/*');
+        consumer.apply(logger_middleware_1.LoggerMiddleware).forRoutes('{*path}');
     }
 };
 exports.AppModule = AppModule;
@@ -33,6 +36,7 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
+                validationSchema: env_validation_1.envValidationSchema,
             }),
             throttler_1.ThrottlerModule.forRoot([
                 {
@@ -53,7 +57,12 @@ exports.AppModule = AppModule = __decorate([
             inventory_feed_module_1.InventoryFeedModule,
             inventory_sync_module_1.InventorySyncModule,
         ],
-        providers: [],
+        providers: [
+            {
+                provide: core_1.APP_GUARD,
+                useClass: jwt_auth_guard_1.JwtAuthGuard,
+            },
+        ],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

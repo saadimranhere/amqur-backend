@@ -13,13 +13,23 @@ export class AuthService {
         private jwt: JwtService,
     ) { }
 
-    // 🔒 single source of truth for safe user responses
+    // remove sensitive fields before returning user to client
     private sanitizeUser(user: any) {
         const { password, ...safeUser } = user;
         return safeUser;
     }
 
-    // ✅ CREATE FIRST SUPER ADMIN
+    // build JWT in one place so payload stays consistent forever
+    private buildToken(user: any) {
+        return this.jwt.sign({
+            sub: user.id,
+            tenantId: user.tenantId,
+            locationId: user.locationId,
+            role: user.role,
+        });
+    }
+
+    // REGISTER (used for creating admins)
     async register(dto: RegisterDto) {
         const existing = await this.prisma.user.findUnique({
             where: { email: dto.email.toLowerCase() },
@@ -29,28 +39,29 @@ export class AuthService {
             throw new UnauthorizedException('User already exists');
         }
 
+        const hashedPassword = await bcrypt.hash(dto.password, 10);
+
         const user = await this.prisma.user.create({
             data: {
                 email: dto.email.toLowerCase(),
-                password: await bcrypt.hash(dto.password, 10),
-
+                password: hashedPassword,
                 firstName: dto.firstName,
                 lastName: dto.lastName,
-
                 tenantId: dto.tenantId,
-
-                // 🔐 first account is always SUPER_ADMIN
                 role: Role.SUPER_ADMIN,
-
-                ...(dto.locationId && {
-                    locationId: dto.locationId,
-                }),
+                ...(dto.locationId && { locationId: dto.locationId }),
             },
         });
 
-        return this.sanitizeUser(user);
+        const token = this.buildToken(user);
+
+        return {
+            access_token: token,
+            user: this.sanitizeUser(user),
+        };
     }
 
+    // LOGIN
     async login(dto: LoginDto) {
         const user = await this.prisma.user.findUnique({
             where: { email: dto.email.toLowerCase() },
@@ -60,21 +71,16 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        const valid = await bcrypt.compare(dto.password, user.password);
+        const passwordValid = await bcrypt.compare(dto.password, user.password);
 
-        if (!valid) {
+        if (!passwordValid) {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        const token = this.jwt.sign({
-            sub: user.id,
-            tenantId: user.tenantId,
-            locationId: user.locationId,
-            role: user.role,
-        });
+        const token = this.buildToken(user);
 
         return {
-            accessToken: token,
+            access_token: token,
             user: this.sanitizeUser(user),
         };
     }
