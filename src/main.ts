@@ -27,10 +27,20 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ResponseInterceptor());
 
   // CORS for widget + frontend
+  // CORS for widget + dealership websites
   app.enableCors({
-    origin: true,
+    origin: true, // allow any dealership domain
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'Origin',
+      'X-Requested-With',
+    ],
   });
+
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
