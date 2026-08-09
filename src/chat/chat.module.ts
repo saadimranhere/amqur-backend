@@ -30,9 +30,18 @@ import { FollowupEngine } from './followup/followup.engine';
 import { ClaudeConversationService } from './claude/claude-conversation.service';
 import { EscalationsModule } from '../escalations/escalations.module';
 import { LeadsModule } from '../leads/leads.module';
+import { AnalyticsModule } from '../analytics/analytics.module';
+import { TradeModule } from '../trade/trade.module';
 
 @Module({
-  imports: [AuthModule, PaymentModule, EscalationsModule, LeadsModule],
+  imports: [
+    AuthModule,
+    PaymentModule,
+    EscalationsModule,
+    LeadsModule,
+    AnalyticsModule,
+    TradeModule,
+  ],
   controllers: [ChatController],
   providers: [
     // orchestrator

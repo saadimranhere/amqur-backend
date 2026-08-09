@@ -9,6 +9,9 @@ export class IntelligentService {
     question: string;
     context: string[];
   }): Promise<string> {
-    return this.claude.answerIntelligentQuestion(params.question);
+    return this.claude.answerIntelligentQuestion(
+      params.question,
+      params.context,
+    );
   }
 }

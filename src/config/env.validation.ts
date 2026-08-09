@@ -23,6 +23,15 @@ export const envValidationSchema = Joi.object({
     .min(1000)
     .max(120000),
 
+  OPENAI_API_KEY: Joi.string().optional().allow(''),
+  OPENAI_MODEL: Joi.string().optional().default('gpt-4o-mini'),
+  OPENAI_BASE_URL: Joi.string().uri().optional().allow(''),
+  OPENAI_TIMEOUT_MS: Joi.number()
+    .optional()
+    .default(25000)
+    .min(1000)
+    .max(120000),
+
   CRM_WEBHOOK_URL: Joi.string().uri().optional().allow(''),
 
   /** Comma-separated CORS origins. Empty = reflect request origin (dev only). */

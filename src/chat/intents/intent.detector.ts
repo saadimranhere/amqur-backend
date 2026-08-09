@@ -16,6 +16,20 @@ export class IntentDetector {
     }
 
     // ─────────────────────────────
+    // 🔁 TRADE-IN — before payment (trade value ≠ payment estimate)
+    // ─────────────────────────────
+    if (
+      text.includes('trade-in') ||
+      text.includes('trade in') ||
+      text.includes('tradein') ||
+      text.includes('trade my') ||
+      text.includes('appraisal') ||
+      /\bwhat(?:'s| is) my (car|truck|vehicle) worth\b/.test(text)
+    ) {
+      return ChatIntent.TRADE_IN;
+    }
+
+    // ─────────────────────────────
     // 💳 PAYMENT / FINANCE — check before inventory keywords
     // ─────────────────────────────
     if (
