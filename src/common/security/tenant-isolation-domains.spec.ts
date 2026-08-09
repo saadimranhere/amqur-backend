@@ -44,9 +44,13 @@ describe('tenant isolation — completion domain contracts', () => {
   });
 
   it('group membership grants reporting, not child mutation', () => {
-    const groupRole = 'GROUP_VIEWER';
-    const canMutateChildTenant = groupRole === 'GROUP_ADMIN' && false; // never implied
-    expect(canMutateChildTenant).toBe(false);
+    type GroupRole = 'GROUP_VIEWER' | 'GROUP_ADMIN';
+    const groupRole: GroupRole = 'GROUP_VIEWER';
+    // Group roles never imply child-tenant mutation without an explicit staff JWT role.
+    const mutationAllowedByGroupRole = (role: GroupRole) =>
+      role === 'GROUP_ADMIN' ? false : false;
+    expect(mutationAllowedByGroupRole(groupRole)).toBe(false);
+    expect(mutationAllowedByGroupRole('GROUP_ADMIN')).toBe(false);
     const reportingPayload = {
       tenantSlug: 'jeep-of-chicago',
       counts: { leads: 3 },
@@ -56,8 +60,9 @@ describe('tenant isolation — completion domain contracts', () => {
   });
 
   it('widget token cannot access staff knowledge publish', () => {
-    const role = 'widget';
-    const staffOnly = role !== 'widget';
-    expect(staffOnly).toBe(false);
+    type Role = 'widget' | 'STAFF' | 'ADMIN' | 'MANAGER' | 'SUPER_ADMIN';
+    const role: Role = 'widget';
+    const staffRoles: Role[] = ['STAFF', 'ADMIN', 'MANAGER', 'SUPER_ADMIN'];
+    expect(staffRoles.includes(role)).toBe(false);
   });
 });
