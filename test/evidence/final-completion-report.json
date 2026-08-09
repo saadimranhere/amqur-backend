@@ -84,11 +84,11 @@
   ],
   "git": {
     "backendBranch": "feat/platform-completion-100",
-    "backendHead": "08dcacb",
+    "backendHead": "12071b2783764b2b66194917bb4a684e26991cb8",
     "widgetBranch": "feat/platform-completion-100",
-    "widgetHead": "34e4d97"
+    "widgetHead": "eb5d02bdcf40af9506479c6bee02c875331bee51"
   },
-  "timestamp": "2026-08-09T22:55:03Z",
+  "timestamp": "2026-08-09T22:55:45Z",
   "publicTrafficStatus": "fail_closed_no_public_traffic",
   "merchantCenterContamination": "none_in_amqur_repos",
   "productionFailClosedProbes": {
@@ -106,5 +106,14 @@
     "merchantCenterContamination": "NONE in src/prisma",
     "publicTraffic": "fail_closed",
     "knowledgeRetrieval": "keyword_hybrid_production_capable_embeddings_optional"
+  },
+  "freshDatabaseMigration": {
+    "local": "BLOCKED_NO_DOCKER",
+    "ciJob": "migrations-empty-db",
+    "note": "Docker daemon unavailable on seal host; CI empty-db migrate deploy is required gate"
+  },
+  "dockerBuilds": {
+    "local": "BLOCKED_NO_DOCKER",
+    "ciJob": "docker-build"
   }
 }
