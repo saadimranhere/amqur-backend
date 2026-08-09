@@ -1,9 +1,13 @@
 {
   "repositoryControlledCompletionPercent": 100,
   "tests": {
-    "backendUnitSuites": 54,
-    "backendUnitTests": 224,
-    "widgetTests": 35
+    "backendUnitSuites": 56,
+    "backendUnitTests": 263,
+    "widgetTests": 35,
+    "groundingAdversarialCases": 20,
+    "secretScan": "PASS (.env.example placeholder URL only)",
+    "npmAuditProdWidget": "0 vulnerabilities",
+    "npmAuditProdBackend": "known nest transitive multer/path-to-regexp/qs \u2014 tracked, not introduced by completion branch uniquely"
   },
   "domains": {
     "multiTenancy": "CODE_COMPLETE",
@@ -84,7 +88,7 @@
     "widgetBranch": "feat/platform-completion-100",
     "widgetHead": "34e4d97"
   },
-  "timestamp": "2026-08-09T22:50:00.000Z",
+  "timestamp": "2026-08-09T22:55:03Z",
   "publicTrafficStatus": "fail_closed_no_public_traffic",
   "merchantCenterContamination": "none_in_amqur_repos",
   "productionFailClosedProbes": {
@@ -92,5 +96,15 @@
     "passed": 68,
     "evidenceFile": "test/evidence/production-failclosed-latest.json"
   },
-  "inventoryIntegrationBoundary": "docs/architecture/INVENTORY_INTEGRATION_BOUNDARY.md"
+  "inventoryIntegrationBoundary": "docs/architecture/INVENTORY_INTEGRATION_BOUNDARY.md",
+  "verification": {
+    "typecheck": "PASS",
+    "backendBuild": "PASS",
+    "widgetBuild": "PASS",
+    "widgetLint": "PASS",
+    "backendLintErrors": 0,
+    "merchantCenterContamination": "NONE in src/prisma",
+    "publicTraffic": "fail_closed",
+    "knowledgeRetrieval": "keyword_hybrid_production_capable_embeddings_optional"
+  }
 }

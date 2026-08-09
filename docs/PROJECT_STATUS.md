@@ -1,7 +1,7 @@
 # AMQUR Platform — Project Status
 
-**As of:** 2026-08-09  
-**Completion branch:** `feat/platform-completion-100` (backend + widget)  
+**As of:** 2026-08-09
+**Completion branch:** `feat/platform-completion-100` (backend + widget)
 **Canonical state:** Repository-controlled platform completion at **100%**
 
 ---
@@ -13,7 +13,7 @@ The AMQUR Platform (backend + widget) has completed all in-repository workstream
 | Metric | Value |
 |--------|-------|
 | Repository completion | 100% |
-| Backend unit tests | 224 passed (54 suites) |
+| Backend unit tests | 263 passed (56 suites) |
 | Widget tests | 35 passed; build OK |
 | Production tenants (fail-closed) | 6 rooftops |
 | Public traffic | **OFF** (empty `allowedOrigins`, feature gates conservative) |

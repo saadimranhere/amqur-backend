@@ -1,6 +1,6 @@
 # Inventory Integration Boundary
 
-**Date:** 2026-08-09  
+**Date:** 2026-08-09
 **Status:** Canonical
 
 ## Two different projects

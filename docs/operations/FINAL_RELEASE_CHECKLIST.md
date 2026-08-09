@@ -1,7 +1,7 @@
 # Final Release Checklist
 
-**Date:** 2026-08-09  
-**Target:** Internal canary / controlled rollout (not public traffic)  
+**Date:** 2026-08-09
+**Target:** Internal canary / controlled rollout (not public traffic)
 **Branch:** `feat/platform-completion-100`
 
 Use this checklist before enabling any capability beyond current fail-closed production state.

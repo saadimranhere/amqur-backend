@@ -22,6 +22,13 @@ coverage/
 test/evidence/*.log
 test/evidence/api.pid
 test/evidence/soak.pid
+# Timestamped local smoke/canary runs (keep *-latest.json if intentionally tracked)
+test/evidence/canary-matrix-[0-9]*.json
+test/evidence/load-SMOKE-[0-9]*.json
+test/evidence/load-BURST_*-[0-9]*.json
+test/evidence/load-EXPECTED_PILOT-[0-9]*.json
+test/evidence/load-STAGING_CANARY-[0-9]*.json
+test/evidence/production-failclosed-[0-9]*.json
 release.json
 # Local binary upload storage (not source module)
 /uploads/

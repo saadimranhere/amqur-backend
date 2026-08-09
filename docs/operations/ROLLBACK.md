@@ -1,7 +1,7 @@
 # Rollback and Kill-Switch Procedures
 
-**Date:** 2026-08-09  
-**Environment:** Dial Us Now production (`dial-us-now-platform`)  
+**Date:** 2026-08-09
+**Environment:** Dial Us Now production (`dial-us-now-platform`)
 **Status:** Procedures verified 2026-07-20; controls remain active
 
 This document consolidates rollback paths for AMQUR production. **Preferred order: kill switch first, redeploy second.**

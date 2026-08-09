@@ -55,42 +55,8 @@ const SAFE_FALLBACKS: Record<ClaimType, string> = {
 
 type ClaimPattern = { claimType: ClaimType; pattern: RegExp };
 
+/** More specific claim types first so "parts … in stock" is not swallowed by vehicle inventory. */
 const CLAIM_PATTERNS: ClaimPattern[] = [
-  {
-    claimType: ClaimType.INVENTORY_AVAILABILITY,
-    pattern:
-      /\b(in stock|available now|we have (?:one|this|that|a)|still available|on the lot|ready for (?:pickup|delivery))\b/i,
-  },
-  {
-    claimType: ClaimType.PRICE,
-    pattern:
-      /\b(\$[\d,]+(?:\.\d{2})?|\d[\d,]*\s*dollars?|priced at|your price is|total (?:price|cost) (?:is|of))\b/i,
-  },
-  {
-    claimType: ClaimType.INCENTIVES,
-    pattern:
-      /\b(rebate|incentive|cash back|special offer|manufacturer (?:offer|bonus)|\$\d+\s*(?:off|rebate))\b/i,
-  },
-  {
-    claimType: ClaimType.HOURS,
-    pattern:
-      /\b(open (?:at|from|until|till)|closed on|hours (?:are|is)|we(?:'re| are) open|store hours)\b/i,
-  },
-  {
-    claimType: ClaimType.STAFF,
-    pattern:
-      /\b(salesperson|advisor|manager|technician|rep named|speak with \w+|your consultant is)\b/i,
-  },
-  {
-    claimType: ClaimType.APPOINTMENT_CONFIRMATION,
-    pattern:
-      /\b(appointment (?:is )?confirmed|you(?:'re| are) (?:all )?set for|see you (?:on|at)|booked for|scheduled for \d)\b/i,
-  },
-  {
-    claimType: ClaimType.SERVICE_STATUS,
-    pattern:
-      /\b(repair (?:is )?(?:done|complete|ready)|vehicle (?:is )?ready|service (?:is )?finished|work order (?:is )?closed|status:?\s*(?:complete|ready))\b/i,
-  },
   {
     claimType: ClaimType.PARTS_FITMENT,
     pattern:
@@ -99,7 +65,7 @@ const CLAIM_PATTERNS: ClaimPattern[] = [
   {
     claimType: ClaimType.PARTS_STOCK,
     pattern:
-      /\b(part(?:s)? (?:in|are in) stock|we have (?:the|that) part|part(?:s)? available)\b/i,
+      /\b(part(?:s)? (?:in|are in) stock|parts? are in stock|we have (?:the|that) part|part(?:s)? available)\b/i,
   },
   {
     claimType: ClaimType.PARTS_PRICE,
@@ -117,9 +83,44 @@ const CLAIM_PATTERNS: ClaimPattern[] = [
       /\b(you(?:'re| are) (?:pre-)?approved|financing approved|credit approved|loan approved)\b/i,
   },
   {
+    claimType: ClaimType.APPOINTMENT_CONFIRMATION,
+    pattern:
+      /\b(appointment (?:is )?confirmed|you(?:'re| are) (?:all )?set for|see you (?:on|at)|booked for|scheduled for \d)\b/i,
+  },
+  {
+    claimType: ClaimType.SERVICE_STATUS,
+    pattern:
+      /\b(repair (?:is )?(?:done|complete|ready)|vehicle (?:is )?ready|service (?:is )?finished|work order (?:is )?closed|status:?\s*(?:complete|ready))\b/i,
+  },
+  {
+    claimType: ClaimType.INCENTIVES,
+    pattern:
+      /\b(rebate|incentive|cash back|special offer|manufacturer (?:offer|bonus)|\$\d+\s*(?:off|rebate))\b/i,
+  },
+  {
+    claimType: ClaimType.HOURS,
+    pattern:
+      /\b(open (?:at|from|until|till)|closed on|hours (?:are|is)|we(?:'re| are) open|store hours)\b/i,
+  },
+  {
+    claimType: ClaimType.STAFF,
+    pattern:
+      /\b(salesperson|advisor|manager|technician|rep named|speak with \w+|your consultant is)\b/i,
+  },
+  {
     claimType: ClaimType.POLICIES,
     pattern:
       /\b(our policy (?:is|requires)|we always|guaranteed (?:return|warranty)|lifetime warranty|no questions asked)\b/i,
+  },
+  {
+    claimType: ClaimType.PRICE,
+    pattern:
+      /\b(\$[\d,]+(?:\.\d{2})?|\d[\d,]*\s*dollars?|priced at|your price is|total (?:price|cost) (?:is|of))\b/i,
+  },
+  {
+    claimType: ClaimType.INVENTORY_AVAILABILITY,
+    pattern:
+      /\b(in stock|available now|we have (?:one|this|that|a)|still available|on the lot|ready for (?:pickup|delivery))\b/i,
   },
 ];
 
@@ -162,6 +163,35 @@ export class GroundingGuardService {
         }
         sanitized = true;
       }
+    }
+
+    // Residual cleanup: pattern replace can leave orphaned dollar amounts / "approved"
+    // after nearby claim fragments were rewritten.
+    const priceOk =
+      allowed.has(ClaimType.PRICE) || verifiedMap.get(ClaimType.PRICE) === true;
+    if (!priceOk && /\$\d/.test(reply)) {
+      reply = reply.replace(
+        /\$[\d,]+(?:\.\d{2})?/g,
+        SAFE_FALLBACKS[ClaimType.PRICE],
+      );
+      if (!strippedClaimTypes.includes(ClaimType.PRICE)) {
+        strippedClaimTypes.push(ClaimType.PRICE);
+      }
+      sanitized = true;
+    }
+
+    const approvalOk =
+      allowed.has(ClaimType.FINANCE_APPROVAL) ||
+      verifiedMap.get(ClaimType.FINANCE_APPROVAL) === true;
+    if (!approvalOk && /\b(?:pre-?)?approved\b/i.test(reply)) {
+      reply = reply.replace(
+        /\b(?:pre-?)?approved\b/gi,
+        SAFE_FALLBACKS[ClaimType.FINANCE_APPROVAL],
+      );
+      if (!strippedClaimTypes.includes(ClaimType.FINANCE_APPROVAL)) {
+        strippedClaimTypes.push(ClaimType.FINANCE_APPROVAL);
+      }
+      sanitized = true;
     }
 
     return { reply, sanitized, strippedClaimTypes };

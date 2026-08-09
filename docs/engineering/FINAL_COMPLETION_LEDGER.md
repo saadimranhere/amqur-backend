@@ -1,16 +1,16 @@
 # AMQUR Platform — Final Completion Ledger
 
-**Date:** 2026-08-09  
-**Branch:** `feat/platform-completion-100` (backend + widget)  
-**Repository-controlled completion:** 100%  
-**Public traffic:** fail-closed — not live  
+**Date:** 2026-08-09
+**Branch:** `feat/platform-completion-100` (backend + widget)
+**Repository-controlled completion:** 100%
+**Public traffic:** fail-closed — not live
 **Merchant Center / VLA automation:** out of scope (see `docs/architecture/INVENTORY_INTEGRATION_BOUNDARY.md`)
 
 ## Verification snapshot (this pass)
 
 | Suite | Result |
 |-------|--------|
-| Backend unit tests | **224 passed** / 54 suites |
+| Backend unit tests | **263 passed** / 56 suites |
 | Widget tests | **35 passed** / 5 files |
 | Widget production build | **OK** (`dist/assistant-widget.iife.js`) |
 | Production fail-closed matrix | 68/68 probes (`backend/test/evidence/production-failclosed-latest.json`) |
@@ -37,7 +37,7 @@
 | 14 | Parts | CODE_COMPLETE | `backend/src/parts/parts-inquiry.service.ts`, `parts.module.ts` | `canary-gate.spec.ts`, `platform.e2e-spec.ts` | None (inquiry capture; live parts catalog via DMS external) |
 | 15 | Finance | CODE_COMPLETE | `backend/src/finance/finance-request.service.ts`, `backend/src/chat/payment-explainer.ts` | `payment.service.spec.ts` | None (request capture; payments fail-closed by default) |
 | 16 | Trade | CODE_COMPLETE | `backend/src/trade/trade.service.ts`, `trade.module.ts` | — | Live appraisal vendor (intentionally disabled; capture-only) |
-| 17 | Knowledge / RAG | CODE_COMPLETE | `backend/src/knowledge/knowledge-retrieval.service.ts`, `knowledge-ingestion.service.ts`, `knowledge-chunker.service.ts`, keyword hybrid + optional `embeddingJson` field | `knowledge-retrieval.service.spec.ts` | pgvector deferred; embeddings optional JSON field |
+| 17 | Knowledge / RAG | CODE_COMPLETE | **Production retrieval = keyword/hybrid** (`knowledge-retrieval.service.ts`) with tenant/location filters, PUBLISHED/APPROVED + effective/expires gates, provenance metadata, injection neutralization. Embeddings/`pgvector` are **optional future** (`embedding.provider.ts` DisabledEmbeddingProvider; `KnowledgeChunk.embedding` JSON nullable). Runtime does **not** require embeddings. | `knowledge-retrieval.service.spec.ts`, `prompt-injection.util.spec.ts` | Content authoring/approval is operational; embeddings optional |
 | 18 | Website ingest | CODE_COMPLETE | `backend/src/knowledge/website-ingestion.service.ts`, `knowledge.controller.ts` | — | Approved source URLs per tenant (operator config) |
 | 19 | Orchestrator | CODE_COMPLETE | `backend/src/chat/chat.orchestrator.ts`, `chat.service.ts`, `chat.controller.ts` | `platform.e2e-spec.ts` | None |
 | 20 | LLM providers | CODE_COMPLETE | `backend/src/ai/llm-router.service.ts`, `openai-llm.provider.ts`, `anthropic-llm.provider.ts` | — | Provider API keys in Railway/env |

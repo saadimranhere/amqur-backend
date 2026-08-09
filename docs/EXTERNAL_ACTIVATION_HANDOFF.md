@@ -1,7 +1,7 @@
 # External Activation Handoff
 
-**Date:** 2026-08-09  
-**Branch:** `feat/platform-completion-100`  
+**Date:** 2026-08-09
+**Branch:** `feat/platform-completion-100`
 **Scope:** Items that **cannot** be completed inside the AMQUR repositories. All code paths referenced below already exist and are fail-closed until these externals are satisfied.
 
 **Do not treat this list as incomplete code.** Repository-controlled completion is 100%.
@@ -149,16 +149,40 @@
 
 ## Activation sequence (recommended)
 
-1. Verify tenant data (hours, phones, addresses) — item 9  
-2. Configure monitoring + backups — item 7  
-3. Run employee canary on staging — item 10  
-4. Obtain business signatures — item 11  
-5. Install widget (disabled/preview) — item 6  
-6. Set single verified origin; test widget-token — item 9  
-7. Enable inventory feed for one pilot rooftop — item 2  
-8. Configure CRM webhook — item 3  
-9. Tekion sandbox → live — item 1  
-10. Twilio/voice if needed — items 4, 5  
+1. Verify tenant data (hours, phones, addresses) — item 9
+2. Configure monitoring + backups — item 7
+3. Run employee canary on staging — item 10
+4. Obtain business signatures — item 11
+5. Install widget (disabled/preview) — item 6
+6. Set single verified origin; test widget-token — item 9
+7. Enable inventory feed for one pilot rooftop — item 2
+8. Configure CRM webhook — item 3
+9. Tekion sandbox → live — item 1
+10. Twilio/voice if needed — items 4, 5
 11. Incremental feature flag rollout with rollback plan ready
 
 **Public traffic remains OFF until steps 10–11 and signed approval.**
+
+---
+
+## Per-item activation template (applies to every item above)
+
+For each external item, activation must record:
+
+| Field | Requirement |
+|-------|-------------|
+| system/provider | Named vendor or dashboard |
+| capability unlocked | Exact feature flag / IntegrationConnection field |
+| why code cannot complete it | Credential, browser UI, legal approval, or vendor docs |
+| credential/permission required | Secret name or access role (never paste values into git) |
+| browser/provider action | Exact click-path or ticket |
+| environment | staging first, then production |
+| safe verification procedure | Health endpoint, dry-run, or canary matrix step |
+| expected success evidence | Log line, HTTP 200, `liveReady=true`, screenshot path |
+| rollback/disable method | Set flag false / disable connection / unset env |
+| feature flag that stays off | Until verification evidence exists |
+| dependencies/prerequisites | Prior items that must be green |
+| synthetic testing permitted? | Yes in staging mocks only; never invent production facts |
+
+Synthetic testing is permitted only against mocks/fixtures and fail-closed production probes.
+
