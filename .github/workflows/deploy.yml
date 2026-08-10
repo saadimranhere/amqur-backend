@@ -7,7 +7,9 @@ name: Deploy
 # deployment" (see docs/operations/runbook.md).
 #
 # OWNER SETUP REQUIRED (workflow is inert until then):
-#   - repo secret RAILWAY_TOKEN (Railway project token)
+#   - repo secret RAILWAY_API_TOKEN (Railway account or workspace token;
+#     required because this workflow deploys both staging and production.
+#     Project tokens are single-environment and use RAILWAY_TOKEN instead.)
 #   - GitHub environment "production" with required reviewers
 #   - variables STAGING_API_URL / PRODUCTION_API_URL if they change
 
@@ -23,6 +25,10 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  # dial-us-now-platform (AMQUR) — required when using account/workspace tokens
+  RAILWAY_PROJECT_ID: 3bca40b6-01c6-4f02-9464-8682e6ffcb75
+
 jobs:
   deploy-staging:
     runs-on: ubuntu-latest
@@ -34,15 +40,15 @@ jobs:
           node-version: '22'
       - name: Guard — token present
         run: |
-          if [ -z "${{ secrets.RAILWAY_TOKEN }}" ]; then
-            echo "RAILWAY_TOKEN secret not configured — owner setup required" >&2
+          if [ -z "${{ secrets.RAILWAY_API_TOKEN }}" ]; then
+            echo "RAILWAY_API_TOKEN secret not configured — owner setup required" >&2
             exit 1
           fi
       - name: Install Railway CLI
         run: npm i -g @railway/cli
       - name: Publish provenance variables + deploy api and worker
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
         run: |
           set -euo pipefail
           COMMIT_SHA="${{ github.sha }}"
@@ -50,14 +56,14 @@ jobs:
           RELEASE_ID="${{ github.run_id }}-${{ github.run_attempt }}"
           VERSION="$(node -e 'console.log(require("./package.json").version)')"
           for svc in api worker; do
-            railway variables --service "$svc" --environment staging \
+            railway variables --project "$RAILWAY_PROJECT_ID" --service "$svc" --environment staging \
               --set "APP_COMMIT_SHA=${COMMIT_SHA}" \
               --set "APP_BUILD_TIME=${BUILD_TIME}" \
               --set "APP_RELEASE_ID=${RELEASE_ID}" \
               --set "APP_RELEASE_VERSION=${VERSION}" \
               --set "APP_SERVICE_NAME=${svc}" \
               --skip-deploys
-            railway up --service "$svc" --environment staging --ci
+            railway up --project "$RAILWAY_PROJECT_ID" --service "$svc" --environment staging --ci
           done
       - name: Staging smoke — release identity + health + five-tenant contract
         run: |
@@ -92,7 +98,7 @@ jobs:
         run: npm i -g @railway/cli
       - name: Deploy api and worker to production
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
         run: |
           set -euo pipefail
           COMMIT_SHA="${{ github.sha }}"
@@ -100,14 +106,14 @@ jobs:
           RELEASE_ID="${{ github.run_id }}-${{ github.run_attempt }}"
           VERSION="$(node -e 'console.log(require("./package.json").version)')"
           for svc in prod-api prod-worker; do
-            railway variables --service "$svc" --environment production \
+            railway variables --project "$RAILWAY_PROJECT_ID" --service "$svc" --environment production \
               --set "APP_COMMIT_SHA=${COMMIT_SHA}" \
               --set "APP_BUILD_TIME=${BUILD_TIME}" \
               --set "APP_RELEASE_ID=${RELEASE_ID}" \
               --set "APP_RELEASE_VERSION=${VERSION}" \
               --set "APP_SERVICE_NAME=${svc}" \
               --skip-deploys
-            railway up --service "$svc" --environment production --ci
+            railway up --project "$RAILWAY_PROJECT_ID" --service "$svc" --environment production --ci
           done
       - name: Production smoke — release identity + health
         run: |
