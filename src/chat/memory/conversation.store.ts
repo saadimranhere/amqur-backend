@@ -67,6 +67,27 @@ export type ConversationInventoryState = {
   lastAssistantReplySignature?: string;
   handoffRequested?: boolean;
   handoffEscalationId?: string;
+  /** Trade-in structured memory — never invents appraisal value */
+  trade?: {
+    interested?: boolean;
+    vin?: string;
+    year?: number;
+    make?: string;
+    model?: string;
+    trim?: string;
+    mileage?: number;
+    condition?: string;
+    payoff?: number;
+    requestId?: string;
+  };
+  financingPreference?: 'lease' | 'purchase' | 'undecided';
+  purchaseTimeline?: string;
+  language?: string;
+  preferredContact?: 'phone' | 'email' | 'sms';
+  partsVin?: string;
+  serviceVin?: string;
+  financeRequestId?: string;
+  desiredVehicleSummary?: string;
 };
 
 type RequestContext = {

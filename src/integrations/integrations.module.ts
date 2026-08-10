@@ -11,6 +11,7 @@ import { IntegrationsHealthController } from './integrations-health.controller';
 import { WebhookInboxService } from './core/webhook-inbox.service';
 import { InventoryFeedModule } from '../inventory-feed/inventory-feed.module';
 import { InventoryModule } from '../inventory/inventory.module';
+import { NormalizedInventoryHttpProvider } from './normalized-inventory/normalized-inventory-http.provider';
 
 @Module({
   imports: [InventoryFeedModule, InventoryModule],
@@ -23,6 +24,7 @@ import { InventoryModule } from '../inventory/inventory.module';
     WebhookInboxService,
     TekionProvider,
     VAutoFeedProvider,
+    NormalizedInventoryHttpProvider,
     InventoryIngestionService,
     TekionCrmWritebackService,
   ],
@@ -34,6 +36,7 @@ import { InventoryModule } from '../inventory/inventory.module';
     WebhookInboxService,
     TekionProvider,
     VAutoFeedProvider,
+    NormalizedInventoryHttpProvider,
     InventoryIngestionService,
     TekionCrmWritebackService,
   ],

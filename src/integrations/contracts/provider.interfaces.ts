@@ -83,3 +83,25 @@ export interface WebsiteContentProvider {
     key: string,
   ): Promise<{ content: string; sourceTimestamp?: string } | null>;
 }
+
+export interface TradeProvider {
+  readonly name: string;
+  isLiveReady(ctx: ProviderContext): Promise<boolean>;
+  health(ctx: ProviderContext): Promise<{ ok: boolean; detail?: string }>;
+  /** Never invent appraisal values. */
+  requestAppraisal?(
+    ctx: ProviderContext,
+    payload: Record<string, unknown>,
+  ): Promise<{ verified: boolean; appraisalValue?: number; notes?: string }>;
+}
+
+export interface FinanceProvider {
+  readonly name: string;
+  isLiveReady(ctx: ProviderContext): Promise<boolean>;
+  health(ctx: ProviderContext): Promise<{ ok: boolean; detail?: string }>;
+  /** Never invent APR or approval status. */
+  submitInquiry?(
+    ctx: ProviderContext,
+    payload: Record<string, unknown>,
+  ): Promise<{ accepted: boolean; status: string }>;
+}

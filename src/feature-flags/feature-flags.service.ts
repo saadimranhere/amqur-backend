@@ -27,6 +27,12 @@ export const PLATFORM_FEATURE_DEFAULTS: Record<string, boolean> = {
   copilot: false,
   leadCapture: true,
   handoff: true,
+  knowledge: false,
+  uploads: false,
+  appointments: false,
+  sms: false,
+  email: false,
+  whatsapp: false,
 };
 
 @Injectable()
@@ -114,6 +120,8 @@ export class FeatureFlagsService {
       voiceAi: false,
       leadCapture: f.leadCapture === true,
       handoff: f.handoff === true,
+      knowledge: f.knowledge === true,
+      appointments: f.appointments === true,
     };
   }
 }

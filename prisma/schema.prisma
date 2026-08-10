@@ -93,6 +93,14 @@ model Tenant {
   webhookInboxes       WebhookInbox[]
   followUpCampaigns    FollowUpCampaign[]
   canaryInvites        CanaryInvite[]
+  knowledgeDocuments   KnowledgeDocument[]
+  knowledgeSources     KnowledgeSource[]
+  tradeRequests        TradeRequest[]
+  fileObjects          FileObject[]
+  analyticsEvents      AnalyticsEvent[]
+  voiceCallSessions    VoiceCallSession[]
+  websiteAllowedDomains WebsiteAllowedDomain[]
+  financeRequests      FinanceRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -175,6 +183,14 @@ model Location {
   inventoryImportRuns InventoryImportRun[]
   savedVehicles SavedVehicle[]
   partsInquiries PartsInquiry[]
+  knowledgeDocuments KnowledgeDocument[]
+  knowledgeSources   KnowledgeSource[]
+  tradeRequests      TradeRequest[]
+  fileObjects        FileObject[]
+  analyticsEvents    AnalyticsEvent[]
+  voiceCallSessions  VoiceCallSession[]
+  websiteAllowedDomains WebsiteAllowedDomain[]
+  financeRequests    FinanceRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -649,6 +665,9 @@ enum IntegrationProvider {
   GOOGLE_CALENDAR
   GENERIC_WEBHOOK
   MOCK
+  NORMALIZED_INVENTORY_HTTP
+  OPENAI
+  WEBSITE_CONTENT
 }
 
 enum IntegrationHealthStatus {
@@ -912,5 +931,337 @@ model FollowUpCampaign {
 
   @@unique([tenantId, name])
   @@index([tenantId, enabled])
+}
+
+/// Approved knowledge source registry (manual, upload, website, policy, FAQ).
+model KnowledgeSource {
+  id String @id @default(cuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  sourceType KnowledgeSourceType
+  title      String
+  canonicalUrl String?
+  authorityLevel KnowledgeAuthorityLevel @default(UNVERIFIED)
+  status     KnowledgeStatus @default(DRAFT)
+  metadata   Json?
+
+  documents KnowledgeDocument[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  archivedAt DateTime?
+
+  @@index([tenantId, status])
+  @@index([tenantId, locationId])
+}
+
+enum KnowledgeSourceType {
+  MANUAL_ARTICLE
+  UPLOADED_DOCUMENT
+  VERIFIED_WEBSITE
+  DEALERSHIP_POLICY
+  OEM_INFORMATION
+  SERVICE_FAQ
+  FINANCE_FAQ
+  PARTS_FAQ
+  HOURS_CONTACT
+  PROMOTION
+  INTERNAL_SOP
+}
+
+enum KnowledgeAuthorityLevel {
+  UNVERIFIED
+  REVIEWED
+  APPROVED
+  AUTHORITATIVE
+}
+
+enum KnowledgeStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  PUBLISHED
+  EXPIRED
+  ARCHIVED
+  REJECTED
+}
+
+model KnowledgeDocument {
+  id String @id @default(cuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  sourceId String?
+  source   KnowledgeSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  title            String
+  canonicalUrl     String?
+  content          String
+  contentChecksum  String
+  version          Int      @default(1)
+  status           KnowledgeStatus @default(DRAFT)
+  visibility       KnowledgeVisibility @default(CUSTOMER)
+  effectiveAt      DateTime?
+  expiresAt        DateTime?
+  approvedByUserId String?
+  approvedAt       DateTime?
+  lastVerifiedAt   DateTime?
+  metadata         Json?
+
+  chunks KnowledgeChunk[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  archivedAt DateTime?
+
+  @@index([tenantId, status, visibility])
+  @@index([tenantId, locationId])
+  @@index([tenantId, contentChecksum])
+}
+
+enum KnowledgeVisibility {
+  CUSTOMER
+  STAFF
+  INTERNAL
+}
+
+model KnowledgeChunk {
+  id String @id @default(cuid())
+
+  tenantId String
+  documentId String
+  document   KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  locationId String?
+  chunkIndex Int
+  content    String
+  /// Optional embedding vector stored as JSON float array (provider-agnostic).
+  /// Prefer pgvector migration later when extension is available in all envs.
+  embedding  Json?
+  embeddingModel String?
+  tokenCount Int?
+  metadata   Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([documentId, chunkIndex])
+  @@index([tenantId, locationId])
+  @@index([tenantId, documentId])
+}
+
+/// Allowlisted domains for controlled website ingestion (never arbitrary crawl).
+model WebsiteAllowedDomain {
+  id String @id @default(cuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  hostname String
+  pathPrefix String?
+  enabled Boolean @default(true)
+  requiresApproval Boolean @default(true)
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, hostname])
+  @@index([tenantId, enabled])
+}
+
+model TradeRequest {
+  id String @id @default(cuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  conversationId String?
+  vin            String?
+  year           Int?
+  make           String?
+  model          String?
+  trim           String?
+  mileage        Int?
+  condition      String?
+  payoffAmount   Float?
+  ownership      String?
+  desiredVehicleVin String?
+  customerName  String?
+  customerPhone String?
+  customerEmail String?
+  notes          String?
+  /// Never invent appraisal — verified only when TradeProvider confirms.
+  appraisalVerified Boolean @default(false)
+  appraisalValue    Float?
+  status         TradeRequestStatus @default(REQUESTED)
+  photoFileIds   String[] @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, status])
+  @@index([tenantId, conversationId])
+}
+
+enum TradeRequestStatus {
+  REQUESTED
+  PENDING_STAFF
+  APPRAISAL_PENDING
+  QUOTED
+  ACCEPTED
+  DECLINED
+  CLOSED
+  CANCELLED
+}
+
+model FinanceRequest {
+  id String @id @default(cuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  conversationId String?
+  vehicleVin     String?
+  desiredPayment Float?
+  downPayment    Float?
+  termMonths     Int?
+  leaseOrPurchase String?
+  tradeInterest  Boolean @default(false)
+  customerName  String?
+  customerPhone String?
+  customerEmail String?
+  /// APR never invented — only stored when customer-provided or verified config.
+  aprProvided    Float?
+  status         FinanceRequestStatus @default(REQUESTED)
+  notes          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, status])
+}
+
+enum FinanceRequestStatus {
+  REQUESTED
+  PENDING_STAFF
+  ESTIMATE_SHARED
+  HANDED_OFF
+  CLOSED
+  CANCELLED
+}
+
+/// Tenant-scoped upload metadata (binaries in object storage / local disk — not Postgres BLOBs).
+model FileObject {
+  id String @id @default(cuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  storageKey   String
+  originalName String
+  mimeType     String
+  byteSize     Int
+  checksumSha256 String
+  purpose      FilePurpose
+  scannedStatus FileScanStatus @default(PENDING)
+  uploadedByUserId String?
+  conversationId String?
+  metadata Json?
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, storageKey])
+  @@index([tenantId, purpose])
+  @@index([tenantId, conversationId])
+}
+
+enum FilePurpose {
+  TRADE_PHOTO
+  SERVICE_PHOTO
+  DOCUMENT
+  KNOWLEDGE_UPLOAD
+  OTHER
+}
+
+enum FileScanStatus {
+  PENDING
+  CLEAN
+  REJECTED
+  SKIPPED
+  ERROR
+}
+
+model AnalyticsEvent {
+  id String @id @default(cuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  eventType String
+  /// Aggregate-safe properties only — no raw PII/secrets.
+  properties Json?
+  conversationExternalKey String?
+  occurredAt DateTime @default(now())
+
+  @@index([tenantId, eventType, occurredAt])
+  @@index([tenantId, locationId, occurredAt])
+}
+
+/// Voice-ready call session state (provider-disabled until credentials exist).
+model VoiceCallSession {
+  id String @id @default(cuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  externalCallId String
+  direction      String
+  state          String
+  fromNumber     String?
+  toNumber       String?
+  recordingConsent Boolean @default(false)
+  language       String?
+  conversationExternalKey String?
+  leadId         String?
+  escalationId   String?
+  summary        String?
+  metadata       Json?
+  endedAt        DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, externalCallId])
+  @@index([tenantId, state])
 }
 

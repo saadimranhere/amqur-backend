@@ -33,6 +33,13 @@ import { CapabilityModule } from './capability/capability.module';
 import { CacheModule } from './cache/cache.module';
 import { OnboardingModule } from './onboarding/onboarding.module';
 import { DealerGroupsModule } from './dealer-groups/dealer-groups.module';
+import { KnowledgeModule } from './knowledge/knowledge.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { TradeModule } from './trade/trade.module';
+import { UploadsModule } from './uploads/uploads.module';
+import { VoiceModule } from './voice/voice.module';
+import { ChannelsModule } from './channels/channels.module';
+import { FinanceModule } from './finance/finance.module';
 
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
@@ -91,6 +98,13 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
     InventoryModule,
     InventoryFeedModule,
     InventorySyncModule,
+    KnowledgeModule,
+    AnalyticsModule,
+    TradeModule,
+    UploadsModule,
+    VoiceModule,
+    ChannelsModule,
+    FinanceModule,
   ],
 
   providers: [
