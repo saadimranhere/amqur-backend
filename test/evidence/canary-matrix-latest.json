@@ -1,9 +1,9 @@
 {
-  "ranAt": "2026-07-17T02:54:06.310Z",
+  "ranAt": "2026-08-28T02:47:36.473Z",
   "api": "https://staging-api.dialusnow.com/api",
   "widget": "https://staging-widget.dialusnow.com",
-  "apiCommit": "27da4b53357312325e3a9c1cc35ab781d8930057",
-  "widgetCommit": "91db0d9ec986b0fbd74aaba62bf2a9a9566a0e66",
+  "apiCommit": "c403ad931fe78a6c29e16f7822a1f36c2779566b",
+  "widgetCommit": "f246c918437bc35d0556bf6ccdb8d0e18c050d24",
   "total": 65,
   "passed": 65,
   "failed": 0,
@@ -11,12 +11,12 @@
     {
       "name": "api /version reachable with commit identity",
       "pass": true,
-      "detail": "commit=27da4b53357312325e3a9c1cc35ab781d8930057"
+      "detail": "commit=c403ad931fe78a6c29e16f7822a1f36c2779566b"
     },
     {
       "name": "widget /version.json reachable with commit identity",
       "pass": true,
-      "detail": "commit=91db0d9ec986b0fbd74aaba62bf2a9a9566a0e66"
+      "detail": "commit=f246c918437bc35d0556bf6ccdb8d0e18c050d24"
     },
     {
       "name": "widget loader served and namespaced",

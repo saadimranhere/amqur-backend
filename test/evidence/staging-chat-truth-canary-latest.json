@@ -1,0 +1,59 @@
+{
+  "ranAt": "2026-08-10T04:52:47.643Z",
+  "api": "https://staging-api.dialusnow.com/api",
+  "tenant": "jeep-of-chicago",
+  "apiCommit": "411fd0adb1584dc84cbc94bac16a0c8291a2f606",
+  "results": [
+    {
+      "name": "generic",
+      "status": 201,
+      "pass": true,
+      "snippet": "Live inventory search is not enabled for this dealership. I can connect you with a team member instead."
+    },
+    {
+      "name": "missing_inventory",
+      "status": 201,
+      "pass": true,
+      "snippet": "Live inventory search is not enabled for this dealership. I can connect you with a team member instead."
+    },
+    {
+      "name": "exact_price",
+      "status": 201,
+      "pass": true,
+      "snippet": "Live inventory search is not enabled for this dealership. I can connect you with a team member instead."
+    },
+    {
+      "name": "apr",
+      "status": 201,
+      "pass": true,
+      "snippet": "Payment estimates are not enabled for this dealership. A team member can discuss financing options."
+    },
+    {
+      "name": "service",
+      "status": 201,
+      "pass": true,
+      "snippet": "Service scheduling assistance is not enabled. Please contact the service department directly, or ask for a team member."
+    },
+    {
+      "name": "parts",
+      "status": 201,
+      "pass": true,
+      "snippet": "Live inventory search is not enabled for this dealership. I can connect you with a team member instead."
+    },
+    {
+      "name": "handoff",
+      "status": 201,
+      "pass": true,
+      "snippet": "I’ve saved your request for a team member in our system, but live staff notification could not be confirmed yet. Please call the dealership if your need is urgent — I will not claim someone was notified until delivery is confirmed."
+    },
+    {
+      "name": "injection",
+      "status": 201,
+      "pass": true,
+      "snippet": "Live inventory search is not enabled for this dealership. I can connect you with a team member instead."
+    }
+  ],
+  "classification": "AUTOMATED_TECHNICAL_CANARY_NOT_HUMAN",
+  "passed": 8,
+  "total": 8
+}
